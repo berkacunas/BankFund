@@ -34,7 +34,8 @@ def select(dt : date) -> list:
         if rows:
             html_sources = []
             for row in rows:
-                html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), from_julian(row[2]))
+                html_source = HtmlSource(row[0], DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), from_julian(row[2]))
+                # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), from_julian(row[2]))
                 html_sources.append(html_source)
             
         cursor.close()
@@ -63,6 +64,34 @@ def insert(html: str):
         conn.rollback()
         print(error)
 
+    finally:
+        if conn:
+            conn.close()
+
+def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
+    
+    conn = None
+    sql = None
+    count = -1
+    try:    
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        cursor = conn.cursor()
+        
+        sql = "SELECT COUNT(id) FROM HtmlSource WHERE (SELECT CAST(Dt AS Date) as dt_cast) BETWEEN ? AND ?;"
+        
+        cursor.execute(sql, (begin_date, end_date, ))
+        
+        row = cursor.fetchone()
+        if row and row[0]:
+            count = int(row[0])
+            
+        cursor.close()
+        
+        return count
+    
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+    
     finally:
         if conn:
             conn.close()

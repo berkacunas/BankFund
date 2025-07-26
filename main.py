@@ -12,9 +12,11 @@ from globals.globals import rename_columns_dict, DATETIME_NOW_FILE_FORMAT
 
 from entities.sqlite import HtmlSource as sqlite_htmlsource
 from entities.sqlserver import HtmlSource as sqlserver_htmlsource
+from entities.sqlserver import HtmlSources as sqlserver_htmlsources
 from entities.sqlserver import FundValue as sqlserver_fundvalue
+from entities.textserver import TextSources as text_sources
 
-from textserver import TextSources as text_sources
+
 
 # from textserver import TextSource as text_source
 
@@ -27,7 +29,7 @@ def insert_html_sources(begin_date : date = date.min, end_date : date = date.tod
     dates = sqlserver_fundvalue.select_dates()
     htmlsource_count = sqlserver_htmlsource.count(begin_date, end_date)
     
-    delta = datetime.timedelta(days=1)
+    delta = timedelta(days=1)
     
     while (begin_date <= end_date):
         if htmlsource_count == 0:
@@ -104,6 +106,8 @@ def create_framedict_from_html(dt, html):
 def main():
     
     try:
+        sqlserver_htmlsources.insert_fundvalues()
+        
         duplicates = sqlserver_fundvalue.get_duplicate_entries()
         pprint.pp(duplicates, depth=1)
         duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(duplicates)
@@ -121,10 +125,9 @@ def main():
         
         # html_file_sources = text_source.read(datetime.date.today())
         
-        
         # text_sources.insert_new_funds()
         # text_sources.insert_fundvalues()
-        # insert_html_file_sources()6
+        
         
         # insert_html_sources(begin_date=date.today())
         # insert_fundvalues_from_htmlsource()

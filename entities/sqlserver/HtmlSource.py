@@ -3,7 +3,7 @@ from collections import namedtuple
 import pymssql
 
 import globals.DataFormat as DataFormat
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from globals.globals import SQLSERVER_NAME, SQLSERVER_DB, DEFAULT_DATETIME_FORMAT
 
 HtmlSource = namedtuple('HtmlSource', ['id', 'Html', 'Dt'])
 
@@ -22,11 +22,12 @@ def select(dt : date) -> list:
         sql = "SELECT id, Html, Dt FROM HtmlSource WHERE (SELECT CAST(Dt AS Date)) = %s"
         cursor.execute(sql, (dt, ))
         rows = cursor.fetchall()
-    
+
         if rows:
             html_sources = []
             for row in rows:
-                html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), row[2])
+                html_source = HtmlSource(row[0], DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), row[2])
+                # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), row[2])
                 html_sources.append(html_source)
             
         cursor.close()
@@ -68,8 +69,9 @@ def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        sql = "SELECT COUNT(id) FROM HtmlSource WHERE (SELECT CAST(Dt AS Date)) <= %s AND (SELECT CAST(Dt AS Date)) >= %s;" 
-        cursor.execute(sql, (begin_date, end_date))
+        sql = "SELECT COUNT(id) FROM HtmlSource WHERE (SELECT CAST(Dt AS Date) as dt_cast) BETWEEN %s AND %s;"
+        
+        cursor.execute(sql, (begin_date, end_date, ))
         
         row = cursor.fetchone()
         if row and row[0]:
@@ -86,3 +88,32 @@ def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
         if conn:
             conn.close()
 
+def select_dates() -> dict:
+    
+    conn = None
+    dates = {}
+    
+    try:
+        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        curr = conn.cursor()
+        
+        sql = "SELECT DISTINCT(Dt) FROM HtmlSource ORDER BY Dt ASC;"
+        curr.execute(sql)
+        
+        rows = curr.fetchall()
+        
+        if rows:
+            for row in rows:
+                # 'dates' dict object stores Sqlite 'Dt' column value in two different forms. 
+                # Key stores Dt value as datetime. 
+                # Value stores Dt Value julian date as Decimal.
+                dates[row[0].date()] = row[0]
+                
+        return dates
+        
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+            
+    finally:
+        if conn:
+            conn.close()
