@@ -3,11 +3,12 @@ from collections import namedtuple
 from decimal import Decimal
 import sqlite3
 
+from entities.Interfaces import HtmlSource
+
 from globals.globals import SQLITE_DB_PATH
 from globals.DateTime import from_julian, to_julian
 import globals.DataFormat as DataFormat
 
-HtmlSource = namedtuple('HtmlSource', ['id', 'Html', 'Dt'])
 
 def select(dt : date) -> list:
     ''' date format must be YYYY/MM/DD '''

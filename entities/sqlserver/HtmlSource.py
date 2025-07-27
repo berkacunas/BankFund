@@ -2,10 +2,10 @@ from datetime import datetime, date
 from collections import namedtuple
 import pymssql
 
+from entities.Interfaces import HtmlSource
+
 import globals.DataFormat as DataFormat
 from globals.globals import SQLSERVER_NAME, SQLSERVER_DB, DEFAULT_DATETIME_FORMAT
-
-HtmlSource = namedtuple('HtmlSource', ['id', 'Html', 'Dt'])
 
 
 def select(dt : date) -> list:

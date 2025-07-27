@@ -1,17 +1,15 @@
-from collections import namedtuple
 from datetime import datetime, date
 from decimal import Decimal
+import sqlite3
 import csv
-import pymssql
 
 from entities.Interfaces import FundValue, FundValueDuplicate
 
-from entities.sqlserver import Fund as fund
-from entities.sqlserver import FundType as fund_type
+from entities.sqlite import Fund as fund
+from entities.sqlite import FundType as fund_type
 
-from globals.DateTime import is_weekend
-import globals.DataFormat as DataFormat
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from globals import DataFormat
+from globals.globals import SQLITE_DB_PATH
 
 
 def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list:
@@ -20,10 +18,10 @@ def select_by_code(code: str, begin_date : date = date.min, end_date : date = da
     fundvalues = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description FROM FundValue WHERE Code = %s AND (Dt >= %s AND Dt <= %s);"
+        sql = "SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description FROM FundValue WHERE Code = ? AND (Dt BETWEEN ? AND ?);"
         
         curr.execute(sql, (code, begin_date, end_date, ))
         rows = curr.fetchall()
@@ -42,17 +40,17 @@ def select_by_code(code: str, begin_date : date = date.min, end_date : date = da
     finally:
         if conn:
             conn.close()
-                        
+            
 def select_by_date(dt: date) -> list:
     
     conn = None
     fundvalues = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description FROM FundValue WHERE Dt = %s;"
+        sql = "SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description FROM FundValue WHERE Dt = ?;"
         
         curr.execute(sql, (dt, ))
         rows = curr.fetchall()
@@ -78,7 +76,7 @@ def select_all() -> list:
     fundvalues = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
         sql = "SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description FROM FundValue;"
@@ -100,16 +98,16 @@ def select_all() -> list:
     finally:
         if conn:
             conn.close()
-
+            
 def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
     
     conn = None
     id_list = None
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT id FROM FundValue WHERE Code = %s AND Dt = %s AND FundId = %s"
+        sql = "SELECT id FROM FundValue WHERE Code = ? AND Dt = ? AND FundId = ?"
         curr.execute(sql, (code, dt, fund_id, ))
         
         rows = curr.fetchall()
@@ -129,16 +127,16 @@ def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
     finally:
         if conn:
             conn.close()
-        
+            
 def is_exists(fund_id: int, dt: date) -> bool:
     
     conn = None
     is_exists = False;
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        sql = "SELECT COUNT(id) FROM FundValue WHERE FundId = %s AND (SELECT CAST(Dt AS Date)) = %s;"
+        sql = "SELECT COUNT(id) FROM FundValue WHERE FundId = ? AND (SELECT CAST(Dt AS Date)) = ?;"
         cursor.execute(sql, (fund_id, dt, ))
         row = cursor.fetchone()
         if row and row[0]:
@@ -146,7 +144,6 @@ def is_exists(fund_id: int, dt: date) -> bool:
                 is_exists = int(row[0]) > 0
             
         cursor.close()
-        
         return is_exists
     
     except Exception as error:
@@ -155,16 +152,16 @@ def is_exists(fund_id: int, dt: date) -> bool:
     finally:
         if conn:
             conn.close()
-    
+            
 def insert(frame_dict: dict):
     
     conn = None
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
         sql = "INSERT INTO FundValue(Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description) " \
-                                   "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+                                   "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
         for key, value in frame_dict.items():
             fundtype_id = fund_type.select_id(key)
@@ -207,17 +204,17 @@ def insert(frame_dict: dict):
     finally:
         if conn:
             conn.close()
-
+            
 def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> list:
     
     conn = None
     dates = []
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT DISTINCT(Dt) FROM FundValue WHERE (SELECT CAST(Dt AS Date)) BETWEEN %s AND %s ORDER BY Dt ASC;"
+        sql = "SELECT DISTINCT(Dt) FROM FundValue WHERE (SELECT CAST(Dt AS Date)) BETWEEN ? AND ? ORDER BY Dt ASC;"
         curr.execute(sql, (begin_date, end_date, ))
         
         rows = curr.fetchall()
@@ -235,18 +232,18 @@ def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> 
     finally:
         if conn:
             conn.close()
-
+            
 def get_duplicate_entries(code: str = None) -> list:
     
     conn = None
     duplicates = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
         if code:
-            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = %s GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
+            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = ? GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
             curr.execute(sql, (code, ))
         else:
             sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
@@ -270,7 +267,7 @@ def get_duplicate_entries(code: str = None) -> list:
     finally:
         if conn:
             conn.close()
-
+            
 def get_weekend_entries(code: str = None) -> list:
     
     raise NotImplementedError(f"FundValue::get_weekend_entries(code: str = None) -> list not implemented yet !")
@@ -279,10 +276,10 @@ def delete(id: int):
     
     conn = None
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "DELETE FROM FundValue WHERE id = %s;"
+        sql = "DELETE FROM FundValue WHERE id = ?;"
 
         curr.execute(sql, (id, ))
         conn.commit()
@@ -295,7 +292,7 @@ def delete(id: int):
     finally:
         if conn:
             conn.close()
-    
+            
 def delete_duplicate_entries(duplicates: list = None) -> int:
     
     deleted = 0
@@ -315,18 +312,6 @@ def delete_duplicate_entries(duplicates: list = None) -> int:
             
     return deleted
 
-def delete_weekend_entries() -> int:
-    
-    deleted = 0
-    fund_values = select_all()
-    for fund_value in fund_values:
-        if is_weekend(fund_value.Dt):
-            delete(fund_value.id)
-            deleted += 1
-    
-    return deleted
-    
-             
 def to_csv(filename):
 
     fund_values = select_all()
@@ -360,14 +345,3 @@ def to_csv(filename):
         
         if len(row_list) > 0:
             writer.writerows(row_list)
-        
-        #     writerows([["foo", "bar", "spam"],
-        #    ["oof", "rab", "maps"],
-        #    ["writerow", "isn't", "writerows"]])
-            
-        # writer.writerow(
-        #     {'Organization' : 'Google', 
-        #      'Established': '1998', 
-        #      'CEO': 'Sundar Pichai'}
-        #     )
-            

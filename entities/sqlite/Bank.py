@@ -1,16 +1,16 @@
-import pymssql
+import sqlite3
 
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from globals.globals import SQLITE_DB_PATH
     
 def select_bank_id(bank_name: str) -> int:
     
     conn = None
     id = -1
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        sql = "SELECT id FROM Bank WHERE Title = %s"
+        sql = "SELECT id FROM Bank WHERE Title = ?"
         cursor.execute(sql, (bank_name, ))
         row = cursor.fetchone()
         if row and row[0]:

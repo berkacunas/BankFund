@@ -1,17 +1,17 @@
 import os
 from datetime import datetime, date
-from collections import namedtuple
-
 from ios import File
+
+from entities.Interfaces import HtmlSource
+
 import globals.DataFormat as DataFormat
 from globals.globals import HTML_DIR, DATETIME_NOW_FILE_FORMAT
 
-HtmlFileSource = namedtuple('HtmlFileSource', ['Filename', 'Html', 'Dt'])
 
-def read(dt: date) -> list:
+def select(dt: date) -> list:
 
     html_file_sources = []
-    date_dict = list_dates()
+    date_dict = select_dates()
 
     for key, value in date_dict.items():
         
@@ -21,12 +21,12 @@ def read(dt: date) -> list:
             with open(filename, "r", encoding="UTF-8") as f:
                 text = f.read()
                 text = DataFormat.fix_title(DataFormat.fix_comma_symbol(text))
-                file_source = HtmlFileSource(filename, text, value[1])
+                file_source = HtmlSource(None, filename, text, value[1])
                 html_file_sources.append(file_source)
         
     return html_file_sources
 
-def write(filename, html):
+def insert(filename, html):
     
     count = -1
     with open(filename, mode="w", encoding="UTF-8") as f:
@@ -46,7 +46,7 @@ def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
     
     return count
 
-def list_dates() -> dict:
+def select_dates() -> dict:
     
     date_dict = {}
     try:
@@ -54,7 +54,7 @@ def list_dates() -> dict:
         for filename in filenames:
             temp_dt = convert_filename_to_datetime(filename)
             fullname = os.path.join(HTML_DIR, filename)
-            date_dict[fullname] = [temp_dt.date(), temp_dt]
+            date_dict[temp_dt.date()] = temp_dt
         
         return date_dict
         

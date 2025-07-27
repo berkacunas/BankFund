@@ -1,10 +1,9 @@
 from datetime import date
 import pymssql
-from collections import namedtuple
 
 from entities.Interfaces import Fund
+from entities.Interfaces import FundType
 
-from entities.sqlserver import FundType
 from entities.sqlserver import Bank
 
 from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
@@ -18,7 +17,7 @@ def select_id(fund_title: str) -> int:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        sql = "SELECT id FROM Fund WHERE Title = %s"
+        sql = "SELECT id FROM Fund WHERE Title = ?"
         cursor.execute(sql, (fund_title, ))
         row = cursor.fetchone()
         if row and row[0]:
@@ -44,7 +43,7 @@ def is_exists(title: str) -> bool:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        sql = "SELECT COUNT(id) FROM Fund WHERE Title = %s"
+        sql = "SELECT COUNT(id) FROM Fund WHERE Title = ?"
         
         cursor.execute(sql, (title, ))
         row = cursor.fetchone()
@@ -73,7 +72,7 @@ def insert_many(frame_dict: dict, bank_title :str = 'İş Bankası'):
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"
         
         for frame in frame_dict:
             
@@ -106,7 +105,7 @@ def insert(fund: Fund):
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
             
-        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"
         
         cursor.execute(sql, (fund.Code, fund.Title, fund.BankId, fund.TypeId, fund.CreatedOn, ))
         
@@ -127,7 +126,7 @@ def insertall(frame_dict: dict):
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(%s, %s, %s, %s, %s)"
+        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"
 
         for key, value in frame_dict.items():
             fundtype_id = FundType.select_id(key)
