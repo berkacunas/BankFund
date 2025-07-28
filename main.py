@@ -106,7 +106,7 @@ def create_framedict_from_html(dt, html):
 def main():
     
     try:
-        sqlserver_htmlsources.insert_fundvalues()
+        sqlserver_htmlsources.insert_fundvalues(date(2025, 6, 27))
         
         duplicates = sqlserver_fundvalue.get_duplicate_entries()
         pprint.pp(duplicates, depth=1)

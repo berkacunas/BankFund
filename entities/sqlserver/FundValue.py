@@ -200,7 +200,7 @@ def insert(frame_dict: dict):
                 print(f"Cannot find fund type: {key}")
                 
         cursor.close()
-        
+    
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
     

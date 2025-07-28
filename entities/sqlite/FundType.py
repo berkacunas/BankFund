@@ -1,4 +1,5 @@
 import sqlite3
+import pandas as pd
 
 from globals.globals import SQLITE_DB_PATH
 

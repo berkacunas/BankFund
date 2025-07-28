@@ -26,7 +26,7 @@ def select(dt : date) -> list:
         if rows:
             html_sources = []
             for row in rows:
-                html_source = HtmlSource(row[0], DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), row[2])
+                html_source = HtmlSource(row[0], None, DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), row[2])
                 # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), row[2])
                 html_sources.append(html_source)
             

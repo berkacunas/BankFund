@@ -51,5 +51,6 @@ def walk(html_source, callback, begin_date : date = date.min, end_date : date = 
             iter_date += delta
             htmlsource_count -= 1
             
+        
         except Exception as error:
             raise error

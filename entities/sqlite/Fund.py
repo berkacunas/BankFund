@@ -1,12 +1,12 @@
 from datetime import date
-import pymssql
+import sqlite3
 
 from entities.Interfaces import Fund
-from entities.Interfaces import FundType
 
-from entities.sqlserver import Bank
+from entities.sqlite import FundType
+from entities.sqlite import Bank
 
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from globals.globals import SQLITE_DB_PATH
 
 
 def select_id(fund_title: str) -> int:
@@ -14,7 +14,7 @@ def select_id(fund_title: str) -> int:
     conn = None
     id = -1
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
         sql = "SELECT id FROM Fund WHERE Title = ?"
@@ -40,7 +40,7 @@ def is_exists(title: str) -> bool:
     conn = None
     is_exists = False
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
         sql = "SELECT COUNT(id) FROM Fund WHERE Title = ?"
@@ -69,7 +69,7 @@ def insert_many(frame_dict: dict, bank_title :str = 'İş Bankası'):
     conn = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
         sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"
@@ -102,7 +102,7 @@ def insert(fund: Fund):
     conn = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
             
         sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"
@@ -123,7 +123,7 @@ def insertall(frame_dict: dict):
     
     conn = None
     try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
         sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(?, ?, ?, ?, ?)"

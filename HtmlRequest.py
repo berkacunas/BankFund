@@ -9,7 +9,7 @@ from entities.sqlserver import FundValue as sqlserver_fundvalue
 
 from entities.sqlite import HtmlSource as sqlite_htmlsource
 
-from textserver import TextSource as text_source
+from entities.textserver import TextSource as text_source
 
 from globals.globals import SQLITE_DB_PATH, URL, DATETIME_NOW_FILE_FORMAT, rename_columns_dict
 from globals.DateTime import to_julian
@@ -74,7 +74,7 @@ def main():
     
     try:
         filename = fr"C:\berk\GitHub\berk\BankFund\html\{datetime.now().strftime(DATETIME_NOW_FILE_FORMAT)}.txt"
-        text_source.write(filename, response.text)
+        text_source.insert(filename, response.text)
     except:
         pass
         
