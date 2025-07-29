@@ -1,8 +1,8 @@
 import os
 from datetime import datetime, date
-from ios import File
 
 from entities.Interfaces import HtmlSource
+from ios import File
 
 import globals.DataFormat as DataFormat
 from globals.globals import HTML_DIR, DATETIME_NOW_FILE_FORMAT
@@ -15,7 +15,7 @@ def select(dt: date) -> list:
 
     for key, value in date_dict.items():
         
-        if value[0] == dt:
+        if value == dt:
             filename = key
     
             with open(filename, "r", encoding="UTF-8") as f:
