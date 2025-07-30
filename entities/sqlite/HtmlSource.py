@@ -1,6 +1,6 @@
 from datetime import datetime, date
 from collections import namedtuple
-from decimal import Decimal
+import codecs
 import sqlite3
 
 from entities.Interfaces import HtmlSource
@@ -20,14 +20,13 @@ def select(dt : date) -> list:
     
     julian_dt = -1
     for key, value in date_dict.items():
-        if dt == key.date():
+        if dt == key:
             julian_dt = value
     
     try:    
         conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        # SELECT * FROM HtmlSource WHERE (SELECT CAST(Dt AS Date)) = '2025-06-17'
         sql = "SELECT id, Html, Dt FROM HtmlSource WHERE Dt = ?"
         cursor.execute(sql, (julian_dt, ))
         rows = cursor.fetchall()
@@ -35,7 +34,10 @@ def select(dt : date) -> list:
         if rows:
             html_sources = []
             for row in rows:
-                html_source = HtmlSource(row[0], None, DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), from_julian(row[2]))
+                
+                html = codecs.decode(row[1])
+                
+                html_source = HtmlSource(row[0], None, DataFormat.fix_title(DataFormat.fix_comma_symbol(html)), from_julian(row[2]))
                 # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), from_julian(row[2]))
                 html_sources.append(html_source)
             
@@ -78,9 +80,12 @@ def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
         conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        sql = "SELECT COUNT(id) FROM HtmlSource WHERE (SELECT CAST(Dt AS Date) as dt_cast) BETWEEN ? AND ?;"
+        begin_julian = to_julian(begin_date)
+        end_julian = to_julian(end_date)
         
-        cursor.execute(sql, (begin_date, end_date, ))
+        sql = "SELECT COUNT(id) FROM HtmlSource WHERE Dt BETWEEN ? AND ?;"
+        
+        cursor.execute(sql, (begin_julian, end_julian, ))
         
         row = cursor.fetchone()
         if row and row[0]:

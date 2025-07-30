@@ -1,7 +1,9 @@
+import os
 import sqlite3
 import pandas as pd
+from sqlalchemy import create_engine
 
-from globals.globals import SQLITE_DB_PATH
+from globals.globals import SQLITE_DB_PATH, DATA_DIR
 
 def select_id(fundtype_title: str) -> int:
     
@@ -22,8 +24,6 @@ def select_id(fundtype_title: str) -> int:
         
         return id
     
-    except sqlite3.exceptions.IntegrityError as i_error:
-        raise Exception(f"IntegrityError: {i_error}")
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
     
@@ -82,3 +82,19 @@ def insert(fund_types_frame: pd.DataFrame):
     finally:
         if conn:
             conn.close()
+
+def initialize():
+    
+    fundtypes_file = os.path.join(DATA_DIR, 'Fund-Types.csv')
+    try:    
+        engine = create_engine(f'sqlite:///{SQLITE_DB_PATH}', echo=False)
+        with engine.begin() as conn:
+            df = pd.read_csv(fundtypes_file)
+            df.to_sql(name='FundType', con=conn, if_exists='fail')
+            
+    except ValueError as verr:
+        print(verr)
+        raise verr
+    except Exception as error:
+        print(error)
+        raise error

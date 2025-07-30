@@ -5,6 +5,7 @@ SQLSERVER_NAME = "PC-WINDOWS10"
 SQLSERVER_DB = "BankFunds"
 
 HTML_DIR = "./html"
+DATA_DIR = "./data"
 XLSX_DIR = "./xlsx"
 
 REMOVE_STRINGS = [u"Yurt dışı piyasaların kapalı olduğu günlerde açıklanan fon fiyatı. piyasaların açık olduğu son gün hesaplanan değerleme fiyatıdır.",

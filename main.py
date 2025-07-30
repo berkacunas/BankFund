@@ -10,19 +10,16 @@ from FrameHelper import get_empty_row_indexes, split_Code_Dt_Title_column, reali
 from globals import DateTime
 from globals.globals import rename_columns_dict, DATETIME_NOW_FILE_FORMAT
 
-from entities.sqlite import HtmlSource as sqlite_htmlsource
-from entities.sqlserver import HtmlSource as sqlserver_htmlsource
+from entities.sqlite import HtmlSources as sqlite_htmlsources
+from entities.sqlite import FundType as sqlite_fundtype
+from entities.sqlite import FundValue as sqlite_fundvalue
+
 from entities.sqlserver import HtmlSources as sqlserver_htmlsources
 from entities.sqlserver import FundValue as sqlserver_fundvalue
+
 from entities.textserver import TextSources as text_sources
 
-
-
-# from textserver import TextSource as text_source
-
 from plots import ScatterPlots
-
-
 
 def insert_html_sources(begin_date : date = date.min, end_date : date = date.today()):
     
@@ -102,16 +99,21 @@ def create_framedict_from_html(dt, html):
     return frame_dict
 
 
-    
+
 def main():
     
     try:
-        sqlserver_htmlsources.insert_fundvalues(date(2025, 7, 20))
+        sqlite_htmlsources.insert_fundvalues()
+        sqlite_duplicates = sqlite_fundvalue.get_duplicate_entries()
+        pprint.pp(sqlite_duplicates, depth=1)
+        sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
+        sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
         
-        duplicates = sqlserver_fundvalue.get_duplicate_entries()
-        pprint.pp(duplicates, depth=1)
-        duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(duplicates)
-        weekend_count = sqlserver_fundvalue.delete_weekend_entries()
+        # sqlserver_htmlsources.insert_fundvalues(date(2025, 7, 20))
+        # sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
+        # pprint.pp(sqlserver_duplicates, depth=1)
+        # sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
+        # sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
         
         # sqlserver_fundvalue.to_csv(f"./csv/FundValue_{datetime.strftime(datetime.now(), DATETIME_NOW_FILE_FORMAT)}.csv")
         

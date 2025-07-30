@@ -10,3 +10,4 @@ numpy
 xlsxwriter
 html5lib
 matplotlib
+sqlalchemy

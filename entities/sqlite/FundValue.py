@@ -8,6 +8,7 @@ from entities.Interfaces import FundValue, FundValueDuplicate
 from entities.sqlite import Fund as fund
 from entities.sqlite import FundType as fund_type
 
+from globals.DateTime import is_weekend
 from globals import DataFormat
 from globals.globals import SQLITE_DB_PATH
 
@@ -310,6 +311,17 @@ def delete_duplicate_entries(duplicates: list = None) -> int:
             delete(id_list[i])
             deleted += 1
             
+    return deleted
+
+def delete_weekend_entries() -> int:
+    
+    deleted = 0
+    fund_values = select_all()
+    for fund_value in fund_values:
+        if is_weekend(fund_value.Dt):
+            delete(fund_value.id)
+            deleted += 1
+    
     return deleted
 
 def to_csv(filename):
