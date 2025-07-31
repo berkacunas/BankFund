@@ -51,6 +51,10 @@ class FrameHelper:
         frame_dict_list = []
         for i in range(len(htmls)):
             frame_dict = self.create_frame_dict(htmls[i], dts[i])
+            
+            if not frame_dict:
+                print('frame_dict is None')
+            
             frame_dict_list.append(frame_dict)
             
             if callback:

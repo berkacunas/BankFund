@@ -1,4 +1,4 @@
-from datetime import date
+from datetime import datetime, date
 import sqlite3
 
 from entities.Interfaces import Fund
@@ -82,8 +82,10 @@ def insert_many(frame_dict: dict, bank_title :str = 'İş Bankası'):
                     
                     for index, row in value.iterrows():
                         # if not is_fund_exists(row.Title):
-                        cursor.execute(sql, (row.Code, row.Title, bank_id, fundtype_id, None))
-                        print(f"Fund: {row.Title} added.")
+                        fund = Fund(None, row.Code, row.Title, bank_id, fundtype_id, datetime.now())
+                        insert(fund)
+                        # cursor.execute(sql, (row.Code, row.Title, bank_id, fundtype_id, None))
+                        print(f"Fund: {fund.Title} added.")
                         
             break
                 

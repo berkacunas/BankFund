@@ -15,13 +15,14 @@ def select(dt: date) -> list:
 
     for key, value in date_dict.items():
         
-        if value == dt:
-            filename = key
+        if key == dt:
+            filename = f'{datetime.strftime(value, DATETIME_NOW_FILE_FORMAT)}.txt'
+            fullname = os.path.join(HTML_DIR, filename)
     
-            with open(filename, "r", encoding="UTF-8") as f:
+            with open(fullname, "r", encoding="UTF-8") as f:
                 text = f.read()
                 text = DataFormat.fix_title(DataFormat.fix_comma_symbol(text))
-                file_source = HtmlSource(None, filename, text, value[1])
+                file_source = HtmlSource(None, fullname, text, value)
                 html_file_sources.append(file_source)
         
     return html_file_sources

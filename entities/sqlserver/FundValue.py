@@ -147,6 +147,8 @@ def insert(frame_dict: dict):
                 
                 if fundtype_id > 0:
                     for index, row in value.iterrows():
+                        if row.Title == 'İş Portföy Onsekizinci Serbest (Döviz) Fon':
+                            print('Hello')
                         print(f"{key} => {row.Title}")
 
                         fund_id = fund.select_id(row.Title)

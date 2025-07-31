@@ -2,7 +2,7 @@ import pymssql
 
 from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
     
-def select_bank_id(bank_name: str) -> int:
+def select_id(bank_name: str) -> int:
     
     conn = None
     id = -1

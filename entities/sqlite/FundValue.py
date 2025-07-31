@@ -8,7 +8,7 @@ from entities.Interfaces import FundValue, FundValueDuplicate
 from entities.sqlite import Fund as fund
 from entities.sqlite import FundType as fund_type
 
-from globals.DateTime import is_weekend
+from globals.DateTime import is_weekend, to_julian
 from globals import DataFormat
 from globals.globals import SQLITE_DB_PATH
 
@@ -176,6 +176,7 @@ def insert(frame_dict: dict):
                         continue
                   
                     # print(f"1 - UnitSharePrice: {row.UnitSharePrice} | DailyReturn: {row.DailyReturn} | MonthlyReturn: {row.MonthlyReturn} | ThreeMonthReturn: {row.ThreeMonthReturn} | FromNewYear: {row.FromNewYear} | Dt: {row.Dt}")
+                    julian_dt = to_julian(row.Dt)
                     unit_share_price = DataFormat.clear_text(row.UnitSharePrice)
                     daily_return = DataFormat.clear_text(row.DailyReturn)
                     monthly_return = DataFormat.clear_text(row.MonthlyReturn)
@@ -184,14 +185,14 @@ def insert(frame_dict: dict):
                     # print(f"2 - UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt}")
                     
                     if fund_id > 0:
-                        cursor.execute(sql, (row.Code, row.Dt, fund_id, row.Currency, unit_share_price, row.RiskLevel, 
+                        cursor.execute(sql, (row.Code, julian_dt, fund_id, row.Currency, unit_share_price, row.RiskLevel, 
                                         daily_return, monthly_return, three_month_return, from_new_year, row.Title, ))
                         conn.commit()
                         print(f"FundValue => Code: {row.Code} | Title: {row.Title} | UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt} added.")
                         
                     else:
                         print(f"Cannot find fund: {row.Title}")
-                        new_fund = fund.create(row.Code, row.Title, 1, fundtype_id, row.Dt)
+                        new_fund = fund.create(row.Code, row.Title, 1, fundtype_id, julian_dt)
                         fund.insert(new_fund)
                         print(f"Fund created: {row.Title}")
             else:
