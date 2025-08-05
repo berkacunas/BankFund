@@ -1,5 +1,5 @@
 import pymssql
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB, REMOVE_STRINGS
+from globals.globals import REMOVE_STRINGS
 
 def clear_text(text: str) -> str:
     

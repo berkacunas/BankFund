@@ -35,7 +35,7 @@ def insert(filename, html):
         
     return count
 
-def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
+def count_range(begin_date : date = date.min, end_date : date = date.today()) -> int:
     
     count = 0
     filenames = File.list_files(HTML_DIR)

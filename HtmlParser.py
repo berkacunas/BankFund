@@ -8,46 +8,18 @@ import numpy as np
 from globals.globals import XLSX_DIR, DATETIME_NOW_FORMAT
 from Exceptions import HtmlContentNotFoundError
 
-def read_html_from_file(html_source_file: str) -> str:
+# def remove_unwanted_texts(html: str) -> str:
     
-    html = None
-    try:
-        with open(html_source_file, 'r', encoding='UTF-8') as f: 
-            html = f.read()
-    except: 
-        raise
-        
-    if not html:
-        raise HtmlContentNotFoundError(f"Cannot find html in {html}")
-
-    return clear_html(html)
-
-
-def clear_html(html: str) -> str:
+#     replace_substrings = ["<p>Yurt dışı piyasaların kapalı olduğu günlerde açıklanan fon fiyatı, piyasaların açık olduğu son gün hesaplanan değerleme fiyatıdır.</p>",
+#                           "<p>Günlük fiyat açıklamamakta olup, web sitesinde yer alan fiyatlar alım-satım günlerinde alım-satıma konu olan resmi fiyatlar, diğer günlerde ise referans fiyatlardır.</p>"
+#                          ]
     
-    html = remove_unwanted_texts(html)
-    html = replace_decimal_separator(html)
-    
-    return html
-    
-def remove_unwanted_texts(html: str) -> str:
-    
-    replace_substrings = ["<p>Yurt dışı piyasaların kapalı olduğu günlerde açıklanan fon fiyatı, piyasaların açık olduğu son gün hesaplanan değerleme fiyatıdır.</p>",
-                          "<p>Günlük fiyat açıklamamakta olup, web sitesinde yer alan fiyatlar alım-satım günlerinde alım-satıma konu olan resmi fiyatlar, diğer günlerde ise referans fiyatlardır.</p>"
-                         ]
-    
-    for replace_substring in replace_substrings: 
-        pos = html.find(replace_substring)
-        if pos != -1:
-            html = html.replace(replace_substring, "")
+#     for replace_substring in replace_substrings: 
+#         pos = html.find(replace_substring)
+#         if pos != -1:
+#             html = html.replace(replace_substring, "")
             
-    return html
-
-
-def replace_decimal_separator(html) -> str:
-    
-    return html.replace(",", ".")
-
+#     return html
 
 def get_fund_types_frame(frame: pd.DataFrame) -> pd.DataFrame:
     
