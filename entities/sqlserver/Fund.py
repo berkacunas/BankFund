@@ -64,39 +64,34 @@ def is_exists(title: str) -> bool:
         if conn:
             conn.close()
 
-def insert_many(frame_dict: dict, bank_title :str = 'İş Bankası'):
+def insert_frame(frame_dict: dict, bank_title :str = 'İş Bankası'):
     
     bank_id = Bank.select_id(bank_title)
-    conn = None
     
     try:
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
-        cursor = conn.cursor()
-        
-        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(%s, %s, %s, %s, %s)"
-        
         for frame in frame_dict:
             
             for key, value in frame_dict.items():
                 fundtype_id = FundType.select_id(key)
-                if fundtype_id > 0:
-                    
-                    for index, row in value.iterrows():
-                        # if not is_fund_exists(row.Title):
-                        cursor.execute(sql, (row.Code, row.Title, bank_id, fundtype_id, None))
-                        print(f"Fund: {row.Title} added.")
-                        
-            break
                 
-        conn.commit()
-        cursor.close()
+                if fundtype_id > 0:
+                    for index, row in value.iterrows():
+                        print(f"{key} => {row.Title}")
+                        
+                        fund_id = select_id(row.Title)
+                        if fund_id <= 0:
+                            print(f"Cannot find fund: {row.Title}")
+                            fund = create(row.Code, row.Title, 1, fundtype_id, row.Dt)
+                            insert(fund)
+                            print(f"Fund created: {row.Title}")
+                else:
+                    raise Exception(f"Error! Undefined FundType: {key}")       
+                
+            break
         
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
-    
-    finally:
-        if conn:
-            conn.close()
+
 
 def insert(fund: Fund):
     
@@ -119,41 +114,7 @@ def insert(fund: Fund):
     finally:
         if conn:
             conn.close()
-            
-def insertall(frame_dict: dict):
-    
-    conn = None
-    try:    
-        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
-        cursor = conn.cursor()
-        
-        sql = "INSERT INTO Fund(Code, Title, BankId, TypeId, CreatedOn) VALUES(%s, %s, %s, %s, %s)"
 
-        for key, value in frame_dict.items():
-            fundtype_id = FundType.select_id(key)
-            
-            if fundtype_id > 0:
-                for index, row in value.iterrows():
-                    print(f"{key} => {row.Title}")
-
-                    fund_id = select_id(row.Title)
-                   
-                    if fund_id <= 0:
-                        print(f"Cannot find fund: {row.Title}")
-                        fund = create(row.Code, row.Title, 1, fundtype_id, row.Dt)
-                        insert(fund)
-                        print(f"Fund created: {row.Title}")
-            else:
-                raise Exception(f"Error! Undefined FundType: {key}")
-                        
-    except Exception as error:
-        raise Exception(f"{type(error)}: {error}")
-    
-    finally:
-        if conn:
-            conn.close()
-        
-    
 def find_new(fund: Fund) -> Fund:
     
     if not is_exists(fund.Title):

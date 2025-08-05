@@ -2,13 +2,14 @@ from datetime import datetime, date
 from decimal import Decimal
 import sqlite3
 import csv
+import pandas as pd
 
 from entities.Interfaces import FundValue, FundValueDuplicate
 
 from entities.sqlite import Fund as fund
 from entities.sqlite import FundType as fund_type
 
-from globals.DateTime import is_weekend, to_julian
+from globals.DateTime import is_weekend, to_julian, from_julian
 from globals import DataFormat
 from globals.globals import SQLITE_DB_PATH
 
@@ -108,8 +109,8 @@ def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
         conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT id FROM FundValue WHERE Code = ? AND Dt = ? AND FundId = ?"
-        curr.execute(sql, (code, dt, fund_id, ))
+        sql = "SELECT id FROM FundValue WHERE Code = ? AND strftime('%Y-%m-%d', Dt) = ? AND FundId = ?"
+        curr.execute(sql, (code, dt.date(), fund_id, ))
         
         rows = curr.fetchall()
         if rows:
@@ -154,7 +155,9 @@ def is_exists(fund_id: int, dt: date) -> bool:
         if conn:
             conn.close()
             
-def insert(frame_dict: dict):
+def insert_frame(frame_dict: dict) -> list:
+    
+    new_fund_dfs = []
     
     conn = None
     try:    
@@ -165,6 +168,7 @@ def insert(frame_dict: dict):
                                    "VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
 
         for key, value in frame_dict.items():
+            new_funds = []
             fundtype_id = fund_type.select_id(key)
             
             if fundtype_id > 0:
@@ -184,6 +188,7 @@ def insert(frame_dict: dict):
                     from_new_year = DataFormat.clear_text(row.FromNewYear)
                     # print(f"2 - UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt}")
                     
+                    # if fund_id > 0:
                     if fund_id > 0:
                         cursor.execute(sql, (row.Code, julian_dt, fund_id, row.Currency, unit_share_price, row.RiskLevel, 
                                         daily_return, monthly_return, three_month_return, from_new_year, row.Title, ))
@@ -191,14 +196,21 @@ def insert(frame_dict: dict):
                         print(f"FundValue => Code: {row.Code} | Title: {row.Title} | UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt} added.")
                         
                     else:
+                        # build fund object and insert
                         print(f"Cannot find fund: {row.Title}")
                         new_fund = fund.create(row.Code, row.Title, 1, fundtype_id, julian_dt)
                         fund.insert(new_fund)
                         print(f"Fund created: {row.Title}")
+                        new_funds.append(row)
             else:
                 print(f"Cannot find fund type: {key}")
                 
+            if len(new_funds) > 0:
+                new_fund_dfs.append(pd.DataFrame(new_funds, columns=frame_dict[key].columns))
+                
         cursor.close()
+        
+        return new_fund_dfs
         
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
@@ -245,10 +257,10 @@ def get_duplicate_entries(code: str = None) -> list:
         curr = conn.cursor()
         
         if code:
-            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = ? GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
+            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = ? GROUP BY Code, FundId, strftime('%Y-%m-%d', Dt), UnitSharePrice HAVING COUNT(strftime('%Y-%m-%d', Dt)) > 1 AND COUNT(UnitSharePrice) > 1"
             curr.execute(sql, (code, ))
         else:
-            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
+            sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue GROUP BY Code, FundId, strftime('%Y-%m-%d', Dt), UnitSharePrice HAVING COUNT(strftime('%Y-%m-%d', Dt)) > 1 AND COUNT(UnitSharePrice) > 1"
             curr.execute(sql)
         
         rows = curr.fetchall()
@@ -306,9 +318,12 @@ def delete_duplicate_entries(duplicates: list = None) -> int:
         return
     
     for duplicate in duplicates:
-        id_list = select_id_list(duplicate.Code, duplicate.Dt, duplicate.FundId)
+        id_list = select_id_list(duplicate.Code, from_julian(duplicate.Dt), duplicate.FundId)
         
-        for i in range(1, len(id_list)):    # First record is not duplicate. Skip it.
+        if not id_list:     # id_list will never null. Test purposes.
+            continue
+        
+        for i in range(0, len(id_list)):
             delete(id_list[i])
             deleted += 1
             
@@ -319,7 +334,7 @@ def delete_weekend_entries() -> int:
     deleted = 0
     fund_values = select_all()
     for fund_value in fund_values:
-        if is_weekend(fund_value.Dt):
+        if is_weekend(from_julian(fund_value.Dt)):
             delete(fund_value.id)
             deleted += 1
     

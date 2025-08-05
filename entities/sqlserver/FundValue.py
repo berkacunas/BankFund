@@ -3,6 +3,7 @@ from datetime import datetime, date
 from decimal import Decimal
 import csv
 import pymssql
+import pandas as pd
 
 from contextmanager import MsSqlContext as sqlserver_context
 
@@ -134,7 +135,10 @@ def is_exists(fund_id: int, dt: date) -> bool:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
     
-def insert(frame_dict: dict):
+def insert_frame(frame_dict: dict) -> list:
+    
+    new_funds = []
+    new_fund_dfs = []
     
     try:    
         with sqlserver_context.create_connection() as conn:
@@ -147,8 +151,6 @@ def insert(frame_dict: dict):
                 
                 if fundtype_id > 0:
                     for index, row in value.iterrows():
-                        if row.Title == 'İş Portföy Onsekizinci Serbest (Döviz) Fon':
-                            print('Hello')
                         print(f"{key} => {row.Title}")
 
                         fund_id = fund.select_id(row.Title)
@@ -170,21 +172,25 @@ def insert(frame_dict: dict):
                             print(f"FundValue => Code: {row.Code} | Title: {row.Title} | UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt} added.")
                             
                         else:
+                            # build fund object and insert
                             print(f"Cannot find fund: {row.Title}")
                             new_fund = fund.create(row.Code, row.Title, 1, fundtype_id, row.Dt)
                             fund.insert(new_fund)
                             print(f"Fund created: {row.Title}")
-                            insert(frame_dict)
+                            new_funds.append(row)
                 else:
                     print(f"Cannot find fund type: {key}")
                     
+                if len(new_funds) >0:
+                    new_fund_dfs.append(pd.DataFrame(new_funds, columns=frame_dict[key].columns))
+                
             curr.close()
             
+        return new_fund_dfs
                     
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
         
-
 def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> list:
     
     dates = []

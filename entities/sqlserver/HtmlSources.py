@@ -119,8 +119,10 @@ def insert_new_funds(begin_date: date = date.min, end_date: date = date.today())
         
 def insert_fundvalue_handler(frame_dict: dict):
     
-    sqlserver_fundvalue.insert(frame_dict)
+    new_fund_dfs = sqlserver_fundvalue.insert_frame(frame_dict)
+    if len(new_fund_dfs) > 0:
+        sqlserver_fundvalue.insert_frame(new_fund_dfs)
 
 def insert_fund_handler(frame_dict):
     
-    sqlserver_fund.insertall(frame_dict)
+    sqlserver_fund.insert_frame(frame_dict)

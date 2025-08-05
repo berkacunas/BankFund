@@ -10,6 +10,11 @@ def create_connection():
     try:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         yield conn
+        
+    except Exception as error:
+        print(error)
+        raise error
+        
     finally:
         try:
             conn.close()
@@ -25,7 +30,15 @@ async def create_async_connection():
         conn = await pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         yield conn
         
+    except Exception as error:
+        print(error)
+        raise error
+        
     finally:
-        conn.close()
+        try:
+            conn.close()
+            
+        except Exception as error:
+            print(error)
 
         

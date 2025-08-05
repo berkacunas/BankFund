@@ -58,7 +58,7 @@ def is_exists(title: str) -> bool:
         if conn:
             conn.close()
             
-def insert(fund_types_frame: pd.DataFrame):
+def insert_frame(fund_types_frame: pd.DataFrame):
 
     conn = None
     try:    
@@ -72,7 +72,6 @@ def insert(fund_types_frame: pd.DataFrame):
                 cursor.execute(sql, (row.Code, row.Count, ))
                 print(f"FundType: {row.Code} added.")
                 
-            
         conn.commit()
         cursor.close()
     

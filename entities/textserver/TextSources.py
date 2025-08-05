@@ -138,6 +138,6 @@ def insert_fundvalue_handler(frame_dict: dict):
 def insert_fund_handler(frame_dict):
     
     if destination == Destination.SQLSERVER:
-        sqlserver_fund.insertall(frame_dict)
+        sqlserver_fund.insert_frame(frame_dict)
     elif destination == Destination.SQLITE:
-        sqlite_fund.insertall(frame_dict)
+        sqlite_fund.insert_frame(frame_dict)

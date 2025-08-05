@@ -11,12 +11,14 @@ from globals import DateTime
 from globals.globals import rename_columns_dict, DATETIME_NOW_FILE_FORMAT
 
 from entities.sqlite import HtmlSources as sqlite_htmlsources
+from entities.sqlite import HtmlSources as sqlite_htmlsource
 from entities.sqlite import Bank as sqlite_bank
 from entities.sqlite import Fund as sqlite_fund
 from entities.sqlite import FundType as sqlite_fundtype
 from entities.sqlite import FundValue as sqlite_fundvalue
 
 from entities.sqlserver import HtmlSources as sqlserver_htmlsources
+from entities.sqlserver import HtmlSources as sqlserver_htmlsource
 from entities.sqlserver import FundValue as sqlserver_fundvalue
 
 from entities.textserver import TextSource as text_source
@@ -70,7 +72,7 @@ def insert_html_sources(begin_date : date = date.min, end_date : date = date.tod
                 # SqlServerDatabase.insert_fundtypes(fund_types_frame)
                 # SqlServerDatabase.insert_funds(frame_dict)
                     
-                sqlserver_fundvalue.insert(frame_dict)
+                sqlserver_fundvalue.insert_frame(frame_dict)
                 
             except Exception as error:
                 print(error)
@@ -108,19 +110,19 @@ def main():
     # sqlite_bank.initialize()
     
     try:
-        sources = text_source.select(date(2025, 6, 26))
-        for source in sources:
-            frame_dict = create_framedict_from_html(source.Dt, source.Html)
-            sqlite_fund.insert_many(frame_dict)
-            break
+        # sources = text_source.select(date(2025, 6, 26))
+        # for source in sources:
+        #     frame_dict = create_framedict_from_html(source.Dt, source.Html)
+        #     sqlite_fund.insert_frame(frame_dict)
+        #     break
         
-        sqlite_htmlsources.insert_fundvalues()
+        # sqlite_htmlsources.insert_fundvalues(date(2025, 7, 29))
         sqlite_duplicates = sqlite_fundvalue.get_duplicate_entries()
         pprint.pp(sqlite_duplicates, depth=1)
         sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
         sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
         
-        # sqlserver_htmlsources.insert_fundvalues(date(2025, 7, 31))
+        # sqlserver_htmlsources.insert_fundvalues(date(2025, 7, 26))
         # sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
         # pprint.pp(sqlserver_duplicates, depth=1)
         # sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)

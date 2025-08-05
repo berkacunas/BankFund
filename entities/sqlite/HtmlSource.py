@@ -13,29 +13,28 @@ import globals.DataFormat as DataFormat
 def select(dt : date) -> list:
     ''' date format must be YYYY/MM/DD '''
     
-    date_dict = select_dates()
-    
     conn = None
     html_sources = None
-    
-    julian_dt = -1
-    for key, value in date_dict.items():
-        if dt == key:
-            julian_dt = value
     
     try:    
         conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        sql = "SELECT id, Html, Dt FROM HtmlSource WHERE Dt = ?"
-        cursor.execute(sql, (julian_dt, ))
+        # sql = "SELECT id, Html, Dt FROM HtmlSource WHERE Dt = ?"
+        sql = "SELECT id, Html, Dt FROM HtmlSource WHERE strftime('%Y-%m-%d', Dt) = ?"
+        
+        cursor.execute(sql, (dt, ))
         rows = cursor.fetchall()
     
         if rows:
             html_sources = []
             for row in rows:
                 
-                html = codecs.decode(row[1])
+                html = None
+                if isinstance(row[1], bytes):
+                    html = codecs.decode(row[1])
+                else:
+                    html = row[1]
                 
                 html_source = HtmlSource(row[0], None, DataFormat.fix_title(DataFormat.fix_comma_symbol(html)), from_julian(row[2]))
                 # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), from_julian(row[2]))
@@ -79,6 +78,9 @@ def count(begin_date : date = date.min, end_date : date = date.today()) -> int:
     try:    
         conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
+        
+        begin_date = datetime(begin_date.year, begin_date.month, begin_date.day, 0, 0, 0)
+        end_date = datetime(end_date.year, end_date.month, end_date.day, 23, 59, 59)
         
         begin_julian = to_julian(begin_date)
         end_julian = to_julian(end_date)

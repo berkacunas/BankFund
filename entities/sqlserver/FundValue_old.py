@@ -156,7 +156,7 @@ def is_exists(fund_id: int, dt: date) -> bool:
         if conn:
             conn.close()
     
-def insert(frame_dict: dict):
+def insert_frame(frame_dict: dict):
     
     conn = None
     try:    
@@ -325,8 +325,7 @@ def delete_weekend_entries() -> int:
             deleted += 1
     
     return deleted
-    
-             
+              
 def to_csv(filename):
 
     fund_values = select_all()

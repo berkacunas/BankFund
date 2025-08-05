@@ -12,8 +12,7 @@ def is_valid_dt_format(datetime_str, format=DEFAULT_DATETIME_FORMAT) -> bool:
         valid = False
         
     return valid
-
-def to_julian(dt) -> float:
+def to_julian(dt: datetime) -> float:
     
     return julian.to_jd(dt, fmt=DEFAULT_JULIAN_FORMAT)
 

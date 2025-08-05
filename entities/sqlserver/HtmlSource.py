@@ -48,7 +48,6 @@ def insert(html: str):
     try:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)  
         curr = conn.cursor()
-        
         curr.execute(sql, (datetime.now(), html, ))
         conn.commit()
         

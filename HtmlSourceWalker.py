@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import datetime, date, timedelta
 
 from globals import DateTime
 
@@ -9,7 +9,7 @@ frame_helper = FrameHelper()
 def walk(html_source, callback, begin_date : date = date.min, end_date : date = date.today()):
     
     dates = html_source.select_dates()
-    date_values = [x for x in dates.keys()]
+    date_values = [x.date() if type(x) is datetime else x for x in dates.keys()]
     
     if begin_date == date.min:
         begin_date = min(date_values)
@@ -37,10 +37,10 @@ def walk(html_source, callback, begin_date : date = date.min, end_date : date = 
             if daily_htmlsource_count != -1:
                 htmlsource_count -= daily_htmlsource_count
             iter_date += delta
-            continue
         
         html_sources = html_source.select(iter_date)
         if not html_sources:
+            iter_date += delta
             continue
         
         try:
