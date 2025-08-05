@@ -1,6 +1,5 @@
 from datetime import date
 import pymssql
-from collections import namedtuple
 
 from entities.Interfaces import Fund
 
@@ -52,7 +51,6 @@ def is_exists(title: str) -> bool:
         if row and row[0]:
             is_exists = int(row[0]) > 0
             
-        conn.commit()
         cursor.close()
         
         return is_exists
@@ -64,6 +62,32 @@ def is_exists(title: str) -> bool:
         if conn:
             conn.close()
 
+def count() -> int:
+    
+    conn = None
+    count = 0
+    try:
+        conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
+        cursor = conn.cursor()
+        
+        sql = "SELECT COUNT(id) FROM Fund";
+        
+        cursor.execute(sql)
+        row = cursor.fetchone()
+        if row and row[0]:
+            count = int(row[0])
+            
+        cursor.close()
+        
+        return count
+    
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+    
+    finally:
+        if conn:
+            conn.close()
+            
 def insert_frame(frame_dict: dict, bank_title :str = 'İş Bankası'):
     
     bank_id = Bank.select_id(bank_title)
@@ -91,7 +115,6 @@ def insert_frame(frame_dict: dict, bank_title :str = 'İş Bankası'):
         
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
-
 
 def insert(fund: Fund):
     

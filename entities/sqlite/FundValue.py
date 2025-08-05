@@ -138,7 +138,7 @@ def is_exists(fund_id: int, dt: date) -> bool:
         conn = sqlite3.connect(SQLITE_DB_PATH)
         cursor = conn.cursor()
         
-        sql = "SELECT COUNT(id) FROM FundValue WHERE FundId = ? AND (SELECT CAST(Dt AS Date)) = ?;"
+        sql = "SELECT COUNT(id) FROM FundValue WHERE FundId = ? AND strftime('%Y-%m-%d', Dt) = ?;"
         cursor.execute(sql, (fund_id, dt, ))
         row = cursor.fetchone()
         if row and row[0]:
@@ -188,7 +188,6 @@ def insert_frame(frame_dict: dict) -> list:
                     from_new_year = DataFormat.clear_text(row.FromNewYear)
                     # print(f"2 - UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt}")
                     
-                    # if fund_id > 0:
                     if fund_id > 0:
                         cursor.execute(sql, (row.Code, julian_dt, fund_id, row.Currency, unit_share_price, row.RiskLevel, 
                                         daily_return, monthly_return, three_month_return, from_new_year, row.Title, ))
@@ -206,6 +205,9 @@ def insert_frame(frame_dict: dict) -> list:
                 print(f"Cannot find fund type: {key}")
                 
             if len(new_funds) > 0:
+                # Whenever a new fund is defined by the bank, the program simply adds the new fund 
+                # to the database in the first iteration. The same dataframe must be iterated over 
+                # a second iteration to read the fund's daily data.
                 new_fund_dfs.append(pd.DataFrame(new_funds, columns=frame_dict[key].columns))
                 
         cursor.close()
@@ -228,7 +230,7 @@ def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> 
         conn = sqlite3.connect(SQLITE_DB_PATH)
         curr = conn.cursor()
         
-        sql = "SELECT DISTINCT(Dt) FROM FundValue WHERE (SELECT CAST(Dt AS Date)) BETWEEN ? AND ? ORDER BY Dt ASC;"
+        sql = "SELECT DISTINCT(Dt) FROM FundValue WHERE strftime('%Y-%m-%d', Dt) BETWEEN ? AND ? ORDER BY Dt ASC;"
         curr.execute(sql, (begin_date, end_date, ))
         
         rows = curr.fetchall()
@@ -246,7 +248,59 @@ def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> 
     finally:
         if conn:
             conn.close()
-            
+
+def count(date: date) -> int:
+    
+    count = 0
+    conn = None
+    try:    
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        curr = conn.cursor()
+        
+        sql = "SELECT COUNT(id) FROM FundValue WHERE strftime('%Y-%m-%d', Dt) = ?;"
+        curr.execute(sql, (date, ))
+        row = curr.fetchone()
+        
+        if row and row[0]:
+            count = int(row[0])
+        curr.close()
+        
+        return count
+        
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+    
+    finally:
+        if conn:
+            conn.close()
+
+def count_range(begin_date: date = date.min, end_date: date = date.today()) -> int:
+    
+    count = 0
+    conn = None
+    try:    
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        cursor = conn.cursor()
+        curr = conn.cursor()
+        
+        sql = "SELECT COUNT(id) FROM FundValue WHERE strftime('%Y-%m-%d', Dt) BETWEEN ? AND ?;"
+        curr.execute(sql, (begin_date, end_date, ))
+        row = curr.fetchone()
+        
+        if row and row[0]:
+            count = int(row[0])
+        curr.close()
+        
+        return count
+        
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+    
+    finally:
+        if conn:
+            conn.close()
+
+
 def get_duplicate_entries(code: str = None) -> list:
     
     conn = None
@@ -373,3 +427,22 @@ def to_csv(filename):
         
         if len(row_list) > 0:
             writer.writerows(row_list)
+
+def is_date_values_inserted(date: date) -> bool:
+    
+    fund_value_count = count(date)
+    fund_count = fund.count()
+    
+    return fund_value_count == fund_count
+
+def is_date_range_values_inserted(begin_date: date, end_date: date) -> bool:
+    
+    fund_value_count = count_range(begin_date, end_date)
+    fund_count = fund.count()
+    days_diff = days_diff(end_date, begin_date)
+
+    return fund_value_count == (fund_count * days_diff)
+
+def is_today_values_inserted() -> bool:
+    
+    return is_date_values_inserted(datetime.now().date())

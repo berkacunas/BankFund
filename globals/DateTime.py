@@ -1,4 +1,5 @@
 from datetime import datetime
+from math import ceil
 import julian
 
 from globals.globals import DEFAULT_DATETIME_FORMAT, DEFAULT_JULIAN_FORMAT
@@ -12,6 +13,7 @@ def is_valid_dt_format(datetime_str, format=DEFAULT_DATETIME_FORMAT) -> bool:
         valid = False
         
     return valid
+
 def to_julian(dt: datetime) -> float:
     
     return julian.to_jd(dt, fmt=DEFAULT_JULIAN_FORMAT)
@@ -36,3 +38,14 @@ def is_weekday(dt: datetime) -> bool:
 def is_weekend(dt: datetime) -> bool:
     
     return not is_weekday(dt)
+
+def days_diff(start, end):
+  return (end - start).days
+
+def months_diff(start, end):
+    
+  return ceil((end - start).days / 30)
+
+def years_diff(start, end):
+    
+  return ceil((end - start).days / 365)

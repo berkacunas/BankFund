@@ -107,6 +107,12 @@ def create_framedict_from_html(dt, html):
 
 def main():
     
+    check_date = date(2025, 8, 5)
+    if sqlserver_fundvalue.is_date_values_inserted(check_date):
+        print(f'Fund values inserted for date: {check_date}')
+    else:
+        print(f'Cannot find Fund values for date: {check_date}')
+        
     # sqlite_bank.initialize()
     
     try:
@@ -117,16 +123,16 @@ def main():
         #     break
         
         # sqlite_htmlsources.insert_fundvalues(date(2025, 7, 29))
-        sqlite_duplicates = sqlite_fundvalue.get_duplicate_entries()
-        pprint.pp(sqlite_duplicates, depth=1)
-        sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
-        sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
+        # sqlite_duplicates = sqlite_fundvalue.get_duplicate_entries()
+        # pprint.pp(sqlite_duplicates, depth=1)
+        # sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
+        # sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
         
-        # sqlserver_htmlsources.insert_fundvalues(date(2025, 7, 26))
-        # sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
-        # pprint.pp(sqlserver_duplicates, depth=1)
-        # sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
-        # sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
+        sqlserver_htmlsources.insert_fundvalues(date(2025, 8, 5), date(2025, 8, 5))
+        sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
+        pprint.pp(sqlserver_duplicates, depth=1)
+        sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
+        sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
         
         # sqlserver_fundvalue.to_csv(f"./csv/FundValue_{datetime.strftime(datetime.now(), DATETIME_NOW_FILE_FORMAT)}.csv")
         # filename = "./csv/FundValue_2025-07-04_21-37-25.csv"

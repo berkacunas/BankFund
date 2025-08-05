@@ -6,14 +6,14 @@ from FrameHelper import FrameHelper
 
 frame_helper = FrameHelper()
 
-def walk(html_source, callback, begin_date : date = date.min, end_date : date = date.today()):
+def walk(html_source, callback, begin_date : date = date.min, end_date : date = date.max):
     
     dates = html_source.select_dates()
     date_values = [x.date() if type(x) is datetime else x for x in dates.keys()]
     
     if begin_date == date.min:
         begin_date = min(date_values)
-    if end_date == date.today():
+    if end_date == date.max:
         end_date = max(date_values)
         
     htmlsource_count = html_source.count(begin_date, end_date)

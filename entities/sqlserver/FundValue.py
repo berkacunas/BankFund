@@ -12,7 +12,7 @@ from entities.Interfaces import FundValue, FundValueDuplicate
 from entities.sqlserver import Fund as fund
 from entities.sqlserver import FundType as fund_type
 
-from globals.DateTime import is_weekend
+from globals.DateTime import is_weekend, days_diff
 import globals.DataFormat as DataFormat
 from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
 
@@ -182,6 +182,9 @@ def insert_frame(frame_dict: dict) -> list:
                     print(f"Cannot find fund type: {key}")
                     
                 if len(new_funds) >0:
+                    # Whenever a new fund is defined by the bank, the program simply adds the new fund 
+                    # to the database in the first iteration. The same dataframe must be iterated over 
+                    # a second iteration to read the fund's daily data.
                     new_fund_dfs.append(pd.DataFrame(new_funds, columns=frame_dict[key].columns))
                 
             curr.close()
@@ -213,7 +216,47 @@ def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> 
         
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
-            
+
+def count(date: date) -> int:
+    
+    count = 0
+    try:
+        with sqlserver_context.create_connection() as conn:
+                curr = conn.cursor()
+                
+                sql = "SELECT COUNT(id) FROM FundValue WHERE (SELECT CAST(Dt AS Date)) = %s;"
+                curr.execute(sql, (date, ))
+                row = curr.fetchone()
+                
+                if row and row[0]:
+                    count = int(row[0])
+                curr.close()
+                
+                return count
+        
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+
+def count_range(begin_date: date = date.min, end_date: date = date.today()) -> int:
+    
+    count = 0
+    try:
+        with sqlserver_context.create_connection() as conn:
+                curr = conn.cursor()
+                
+                sql = "SELECT COUNT(id) FROM FundValue WHERE (SELECT CAST(Dt AS Date)) BETWEEN %s AND %s;"
+                curr.execute(sql, (begin_date, end_date, ))
+                row = curr.fetchone()
+                
+                if row and row[0]:
+                    count = int(row[0])
+                curr.close()
+                
+                return count
+        
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+
 def get_duplicate_entries(code: str = None) -> list:
     
     duplicates = None
@@ -334,3 +377,22 @@ def to_csv(filename):
         #      'Established': '1998', 
         #      'CEO': 'Sundar Pichai'}
         #     )
+
+def is_date_values_inserted(date: date) -> bool:
+    
+    fund_value_count = count(date)
+    fund_count = fund.count()
+    
+    return fund_value_count == fund_count
+
+def is_date_range_values_inserted(begin_date: date, end_date: date) -> bool:
+    
+    fund_value_count = count_range(begin_date, end_date)
+    fund_count = fund.count()
+    days_diff = days_diff(end_date, begin_date)
+
+    return fund_value_count == (fund_count * days_diff)
+
+def is_today_values_inserted() -> bool:
+    
+    return is_date_values_inserted(datetime.now().date())

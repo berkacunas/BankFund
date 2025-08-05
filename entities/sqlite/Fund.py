@@ -63,6 +63,32 @@ def is_exists(title: str) -> bool:
         if conn:
             conn.close()
 
+def count() -> int:
+    
+    conn = None
+    count = 0
+    try:
+        conn = sqlite3.connect(SQLITE_DB_PATH)
+        cursor = conn.cursor()
+        
+        sql = "SELECT COUNT(id) FROM Fund";
+        
+        cursor.execute(sql)
+        row = cursor.fetchone()
+        if row and row[0]:
+            count = int(row[0])
+            
+        cursor.close()
+        
+        return count
+    
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+    
+    finally:
+        if conn:
+            conn.close()
+            
 def insert_frame(frame_dict: dict, bank_title :str = 'İş Bankası'):
     
     bank_id = Bank.select_id(bank_title)
