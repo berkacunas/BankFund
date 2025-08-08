@@ -101,7 +101,7 @@ def select_all() -> list:
         if conn:
             conn.close()
             
-def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
+def select_id_list(code: str, dt: date, fund_id: int) -> list:
     
     conn = None
     id_list = None
@@ -110,7 +110,7 @@ def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
         curr = conn.cursor()
         
         sql = "SELECT id FROM FundValue WHERE Code = ? AND strftime('%Y-%m-%d', Dt) = ? AND FundId = ?"
-        curr.execute(sql, (code, dt.date(), fund_id, ))
+        curr.execute(sql, (code, dt, fund_id, ))
         
         rows = curr.fetchall()
         if rows:
@@ -372,7 +372,7 @@ def delete_duplicate_entries(duplicates: list = None) -> int:
         return
     
     for duplicate in duplicates:
-        id_list = select_id_list(duplicate.Code, from_julian(duplicate.Dt), duplicate.FundId)
+        id_list = select_id_list(duplicate.Code, from_julian(duplicate.Dt).date(), duplicate.FundId)
         
         if not id_list:     # id_list will never null. Test purposes.
             continue
