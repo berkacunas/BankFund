@@ -4,6 +4,8 @@ import requests
 import sqlite3
 from datetime import datetime
 
+from entities.sqlserver import HtmlSources as sqlserver_htmlsources
+
 from entities.sqlserver import HtmlSource as sqlserver_htmlsource
 from entities.sqlserver import FundValue as sqlserver_fundvalue
 
@@ -85,15 +87,8 @@ def main():
     
     try: 
         sqlserver_htmlsource.insert(response.text)
-        html_sources = sqlserver_htmlsource.select(datetime.today())
-        frame_dict = create_framedict_from_html(html_sources[0])
+        sqlserver_htmlsources.insert_fundvalues(datetime.now().date())
         
-        try:
-            sqlserver_fundvalue.insert(frame_dict)
-            
-        except Exception as error:
-            print(error)
-    
     except Exception as error:
         print(error)
 

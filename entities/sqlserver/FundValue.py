@@ -89,14 +89,14 @@ def select_all() -> list:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
 
-def select_id_list(code: str, dt: datetime, fund_id: int) -> list:
+def select_id_list(code: str, dt: date, fund_id: int) -> list:
     
     id_list = None
     try:
         with sqlserver_context.create_connection() as conn:
             curr = conn.cursor()
             
-            sql = "SELECT id FROM FundValue WHERE Code = %s AND Dt = %s AND FundId = %s"
+            sql = "SELECT id FROM FundValue WHERE Code = %s AND CAST(Dt AS Date) = %s AND FundId = %s"
             
             curr.execute(sql, (code, dt, fund_id, ))
             rows = curr.fetchall()
@@ -265,10 +265,10 @@ def get_duplicate_entries(code: str = None) -> list:
             curr = conn.cursor()
         
             if code:
-                sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = %s GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
+                sql = "SELECT Code, FundId, CAST(Dt AS Date), UnitSharePrice, COUNT(*) FROM FundValue WHERE Code = %s GROUP BY Code, FundId, CAST(Dt AS Date), UnitSharePrice HAVING COUNT(CAST(Dt AS Date)) > 1 AND COUNT(UnitSharePrice) > 1" 
                 curr.execute(sql, (code, ))
             else:
-                sql = "SELECT Code, FundId, Dt, UnitSharePrice, COUNT(*) FROM FundValue GROUP BY Code, FundId, Dt, UnitSharePrice HAVING COUNT(Dt) > 1 AND COUNT(UnitSharePrice) > 1"
+                sql = "SELECT Code, FundId, CAST(Dt AS Date), UnitSharePrice, COUNT(*) FROM FundValue GROUP BY Code, FundId, CAST(Dt AS Date), UnitSharePrice HAVING COUNT(CAST(Dt AS Date)) > 1 AND COUNT(UnitSharePrice) > 1" 
                 curr.execute(sql)
             
             rows = curr.fetchall()

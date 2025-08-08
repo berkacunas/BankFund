@@ -107,11 +107,11 @@ def create_framedict_from_html(dt, html):
 
 def main():
     
-    check_date = date(2025, 8, 5)
-    if sqlserver_fundvalue.is_date_values_inserted(check_date):
-        print(f'Fund values inserted for date: {check_date}')
-    else:
-        print(f'Cannot find Fund values for date: {check_date}')
+    # check_date = date(2025, 8, 5)
+    # if sqlserver_fundvalue.is_date_values_inserted(check_date):
+    #     print(f'Fund values inserted for date: {check_date}')
+    # else:
+    #     print(f'Cannot find Fund values for date: {check_date}')
         
     # sqlite_bank.initialize()
     
@@ -128,7 +128,7 @@ def main():
         # sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
         # sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
         
-        sqlserver_htmlsources.insert_fundvalues(date(2025, 8, 5), date(2025, 8, 5))
+        # sqlserver_htmlsources.insert_fundvalues(date(2025, 8, 1))
         sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
         pprint.pp(sqlserver_duplicates, depth=1)
         sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
