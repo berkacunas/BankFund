@@ -1,15 +1,13 @@
 from datetime import datetime, date
-from collections import namedtuple
 import pymssql
 
 from entities.Interfaces import HtmlSource
 
 import globals.DataFormat as DataFormat
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB, DEFAULT_DATETIME_FORMAT
+from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
 
 
 def select(dt : date) -> list:
-    ''' date format must be YYYY/MM/DD '''
     
     conn = None
     html_sources = None
@@ -18,7 +16,6 @@ def select(dt : date) -> list:
         conn = pymssql.connect(server=SQLSERVER_NAME, database=SQLSERVER_DB)
         cursor = conn.cursor()
         
-        # SELECT * FROM HtmlSource WHERE (SELECT CAST(Dt AS Date)) = '2025-06-17'
         sql = "SELECT id, Html, Dt FROM HtmlSource WHERE (SELECT CAST(Dt AS Date)) = %s"
         cursor.execute(sql, (dt, ))
         rows = cursor.fetchall()
@@ -27,7 +24,6 @@ def select(dt : date) -> list:
             html_sources = []
             for row in rows:
                 html_source = HtmlSource(row[0], None, DataFormat.fix_title(DataFormat.fix_comma_symbol(row[1])), row[2])
-                # html_source = HtmlSource(row[0], DataFormat.clear_text(row[1]), row[2])
                 html_sources.append(html_source)
             
         cursor.close()
@@ -103,9 +99,6 @@ def select_dates() -> dict:
         
         if rows:
             for row in rows:
-                # 'dates' dict object stores Sqlite 'Dt' column value in two different forms. 
-                # Key stores Dt value as datetime. 
-                # Value stores Dt Value julian date as Decimal.
                 dates[row[0].date()] = row[0]
                 
         return dates

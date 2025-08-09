@@ -1,4 +1,4 @@
-from datetime import date, timedelta
+from datetime import date
 
 from FrameHelper import FrameHelper
 import HtmlSourceWalker as htmlsource_walker
@@ -13,8 +13,6 @@ from entities.textserver import TextSource as text_source
 from globals import DateTime
 
 from enum import Enum
-
-# class syntax
 
 class Destination(Enum):
     SQLSERVER = 1
