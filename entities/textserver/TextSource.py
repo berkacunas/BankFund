@@ -47,7 +47,7 @@ def count_range(begin_date : date = date.min, end_date : date = date.today()) ->
     
     return count
 
-def count(date: date):
+def count(date: date) -> int:
     
     return count_range(date, date)
 
