@@ -17,7 +17,21 @@ import globals.DataFormat as DataFormat
 from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
 
 
-def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list:
+def get(id, fund_id, code, dt, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description) -> FundValue:
+    
+    return FundValue(id, fund_id, code, dt, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description)
+
+def get_from_row(row, fund_id = None) -> FundValue:
+    
+    unit_share_price = DataFormat.clear_text(row.UnitSharePrice)
+    daily_return = DataFormat.clear_text(row.DailyReturn)
+    monthly_return = DataFormat.clear_text(row.MonthlyReturn)
+    three_month_return = DataFormat.clear_text(row.ThreeMonthReturn)
+    from_new_year = DataFormat.clear_text(row.FromNewYear)
+                    
+    return get(None, fund_id, row.Code, row.Dt, 'TL', unit_share_price, row.RiskLevel, daily_return, monthly_return, three_month_return, from_new_year, row.Title)
+
+def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list[FundValue]:
     
     fundvalues = None
     try:
@@ -65,7 +79,7 @@ def select_by_date(dt: date) -> list:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
 
-def select_all() -> list:
+def select_all() -> list[FundValue]:
     
     fundvalues = None
     try:
@@ -81,7 +95,7 @@ def select_all() -> list:
             if rows:
                 fundvalues = []
                 for row in rows:
-                    fundvalue = FundValue(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11])
+                    fundvalue = get(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11])
                     fundvalues.append(fundvalue)
             
             return fundvalues
@@ -89,7 +103,7 @@ def select_all() -> list:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
 
-def select_id_list(code: str, dt: date, fund_id: int) -> list:
+def select_id_list(code: str, dt: date, fund_id: int) -> list[int]:
     
     id_list = None
     try:
@@ -135,7 +149,7 @@ def is_exists(fund_id: int, dt: date) -> bool:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
     
-def insert_frame(frame_dict: dict) -> list:
+def insert_frame(frame_dict: dict) -> list[pd.DataFrame]:
     
     new_funds = []
     new_fund_dfs = []
@@ -156,6 +170,9 @@ def insert_frame(frame_dict: dict) -> list:
                         fund_id = fund.select_id(row.Title)
                         if is_exists(fund_id, row.Dt.date()):
                             continue
+                        
+                        
+                        fundvalue = get_from_row(row, fund_id)
                     
                         # print(f"1 - UnitSharePrice: {row.UnitSharePrice} | DailyReturn: {row.DailyReturn} | MonthlyReturn: {row.MonthlyReturn} | ThreeMonthReturn: {row.ThreeMonthReturn} | FromNewYear: {row.FromNewYear} | Dt: {row.Dt}")
                         unit_share_price = DataFormat.clear_text(row.UnitSharePrice)
@@ -194,7 +211,7 @@ def insert_frame(frame_dict: dict) -> list:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
         
-def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> list:
+def select_dates(begin_date: date = date.min, end_date: date = date.today()) -> list[date]:
     
     dates = []
     try:
@@ -257,7 +274,7 @@ def count_range(begin_date: date = date.min, end_date: date = date.today()) -> i
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
 
-def get_duplicate_entries(code: str = None) -> list:
+def get_duplicate_entries(code: str = None) -> list[FundValueDuplicate]:
     
     duplicates = None
     try:
@@ -396,3 +413,37 @@ def is_date_range_values_inserted(begin_date: date, end_date: date) -> bool:
 def is_today_values_inserted() -> bool:
     
     return is_date_values_inserted(datetime.now().date())
+
+def select_last_day_entries() -> list[FundValue]:
+    
+    fundvalues = None
+    
+    try:
+        with sqlserver_context.create_connection() as conn:
+            curr = conn.cursor()
+            
+            sql = '''
+                    WITH CTE_LastDay
+                    AS 
+                    (
+                        SELECT MAX(Dt) as MAXDT FROM FundValue
+                    )
+                    SELECT * FROM CTE_LastDay
+                    INNER JOIN FundValue as fv
+                    ON fv.Dt = CTE_LastDay.MAXDT
+                '''
+            
+            curr.execute(sql)
+            rows = curr.fetchall()
+            
+            if rows:
+                fundvalues = []
+                
+                for row in rows:
+                    fundvalue = get(row[0], row[1], row[2], row[3], row[4], row[5], row[6], row[7], row[8], row[9], row[10], row[11])
+                    fundvalues.append(fundvalue)
+        
+        return fundvalues
+    
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")

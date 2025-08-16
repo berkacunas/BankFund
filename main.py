@@ -128,13 +128,15 @@ def main():
         # sqlite_deleted_duplicate_count = sqlite_fundvalue.delete_duplicate_entries(sqlite_duplicates)
         # sqlite_deleted_weekend_count = sqlite_fundvalue.delete_weekend_entries()
         
-        # sqlserver_htmlsources.insert_fundvalues(date(2025, 8, 16))
-        sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
-        if sqlserver_duplicates:
-            pprint.pp(sqlserver_duplicates, depth=1)
-            sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
         
-        sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
+        # sqlserver_htmlsources.insert_fundvalues(date(2025, 8, 16))
+        # sqlserver_duplicates = sqlserver_fundvalue.get_duplicate_entries()
+        # if sqlserver_duplicates:
+        #     pprint.pp(sqlserver_duplicates, depth=1)
+        #     sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
+        
+        
+        # sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
         
         # sqlserver_fundvalue.to_csv(f"./csv/FundValue_{datetime.strftime(datetime.now(), DATETIME_NOW_FILE_FORMAT)}.csv")
         # filename = "./csv/FundValue_2025-07-04_21-37-25.csv"
@@ -147,6 +149,9 @@ def main():
         # html_file_sources = text_source.read(datetime.date.today())
         # text_sources.insert_new_funds()
         # text_sources.insert_fundvalues()
+        
+        fundvalues = sqlserver_fundvalue.select_last_day_entries()
+        print(fundvalues)
         
     except ValueError as verror:
         print(f"Value error occured in main()::text_source.read()\n{verror}")
