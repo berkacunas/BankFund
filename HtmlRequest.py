@@ -70,20 +70,19 @@ def main():
     try:
         response = get_response(URL)
         # html = TextFile.read(r"./html/03-07-2025_21-26-15.txt")
-        
-    except:
-        pass
+    except Exception as error:
+        print(error)
     
     try:
         filename = fr"C:\berk\GitHub\berk\BankFund\html\{datetime.now().strftime(DATETIME_NOW_FILE_FORMAT)}.txt"
         text_source.insert(filename, response.text)
-    except:
-        pass
+    except Exception as error:
+        print(error)
         
     try:
         sqlite_htmlsource.insert(response.text)
-    except:
-        pass
+    except Exception as error:
+        print(error)
     
     try: 
         sqlserver_htmlsource.insert(response.text)
