@@ -3,11 +3,11 @@ from collections import namedtuple
 import codecs
 import sqlite3
 
-from entities.Interfaces import HtmlSource
+from bankfund.entities.Interfaces import HtmlSource
 
-from globals.globals import SQLITE_DB_PATH
-from globals.DateTime import from_julian, to_julian
-import globals.DataFormat as DataFormat
+from bankfund.utilities.naming import SQLITE_DB_PATH
+from bankfund.utilities.DateTime import from_julian, to_julian
+import bankfund.utilities.DataFormat as DataFormat
 
 
 def select(dt : date) -> list:

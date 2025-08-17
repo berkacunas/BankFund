@@ -4,14 +4,14 @@ import sqlite3
 import csv
 import pandas as pd
 
-from entities.Interfaces import FundValue, FundValueDuplicate
+from bankfund.entities.Interfaces import FundValue, FundValueDuplicate
 
-from entities.sqlite import Fund as fund
-from entities.sqlite import FundType as fund_type
+from bankfund.entities.sqlite import Fund as fund
+from bankfund.entities.sqlite import FundType as fund_type
 
-from globals.DateTime import is_weekend, to_julian, from_julian
-from globals import DataFormat
-from globals.globals import SQLITE_DB_PATH
+from bankfund.utilities.DateTime import is_weekend, to_julian, from_julian
+from bankfund.utilities import DataFormat
+from bankfund.utilities.naming import SQLITE_DB_PATH
 
 
 def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list:

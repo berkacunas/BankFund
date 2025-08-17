@@ -1,13 +1,13 @@
 from datetime import date, timedelta
 
-from FrameHelper import FrameHelper
-import HtmlSourceWalker as htmlsource_walker
+from bankfund.FrameHelper import FrameHelper
+import bankfund.HtmlSourceWalker as htmlsource_walker
 
-from entities.sqlserver import Fund as sqlserver_fund
-from entities.sqlserver import FundValue as sqlserver_fundvalue
-from entities.sqlserver import HtmlSource as html_source
+from bankfund.entities.sqlserver import Fund as sqlserver_fund
+from bankfund.entities.sqlserver import FundValue as sqlserver_fundvalue
+from bankfund.entities.sqlserver import HtmlSource as html_source
 
-from globals import DateTime
+from bankfund.utilities import DateTime
 
 
 def insert_fundvalues(begin_date : date = date.min, end_date : date = date.today()):

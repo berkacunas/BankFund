@@ -1,5 +1,6 @@
 import pymssql
-from globals.globals import REMOVE_STRINGS
+
+from bankfund.utilities.naming import REMOVE_STRINGS
 
 def clear_text(text: str) -> str:
     

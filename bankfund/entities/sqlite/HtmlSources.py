@@ -1,10 +1,10 @@
 from datetime import date
 
-import HtmlSourceWalker as htmlsource_walker
+import bankfund.HtmlSourceWalker as htmlsource_walker
 
-from entities.sqlite import Fund as sqlite_fund
-from entities.sqlite import FundValue as sqlite_fundvalue
-from entities.sqlite import HtmlSource as html_source
+from bankfund.entities.sqlite import Fund as sqlite_fund
+from bankfund.entities.sqlite import FundValue as sqlite_fundvalue
+from bankfund.entities.sqlite import HtmlSource as html_source
 
 def insert_fundvalues(begin_date : date = date.min, end_date : date = date.today()):
     

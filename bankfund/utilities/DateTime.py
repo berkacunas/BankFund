@@ -2,7 +2,7 @@ from datetime import datetime
 from math import ceil
 import julian
 
-from globals.globals import DEFAULT_DATETIME_FORMAT, DEFAULT_JULIAN_FORMAT
+from bankfund.utilities.naming import DEFAULT_DATETIME_FORMAT, DEFAULT_JULIAN_FORMAT
 
 def is_valid_dt_format(datetime_str, format=DEFAULT_DATETIME_FORMAT) -> bool:
     

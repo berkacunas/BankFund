@@ -1,11 +1,11 @@
 import os
 from datetime import datetime, date
 
-from entities.Interfaces import HtmlSource
-from ios import File
+from bankfund.entities.Interfaces import HtmlSource
+from bankfund.ios import File
 
-import globals.DataFormat as DataFormat
-from globals.globals import HTML_DIR, DATETIME_NOW_FILE_FORMAT
+import bankfund.utilities.DataFormat as DataFormat
+from bankfund.utilities.naming import HTML_DIR, DATETIME_NOW_FILE_FORMAT
 
 
 def select(dt: date) -> list:

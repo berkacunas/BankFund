@@ -1,12 +1,12 @@
 from datetime import date
 import pymssql
 
-from entities.Interfaces import Fund
+from bankfund.entities.Interfaces import Fund
 
-from entities.sqlserver import FundType
-from entities.sqlserver import Bank
+from bankfund.entities.sqlserver import FundType
+from bankfund.entities.sqlserver import Bank
 
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from bankfund.utilities.naming import SQLSERVER_NAME, SQLSERVER_DB
 
 
 def select_id(fund_title: str) -> int:

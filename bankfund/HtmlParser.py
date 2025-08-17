@@ -5,8 +5,8 @@ import re
 import pandas as pd
 import numpy as np
 
-from globals.globals import XLSX_DIR, DATETIME_NOW_FORMAT
-from Exceptions import HtmlContentNotFoundError
+from bankfund.utilities.naming import XLSX_DIR, DATETIME_NOW_FORMAT
+from bankfund.Exceptions import HtmlContentNotFoundError
 
 # def remove_unwanted_texts(html: str) -> str:
     

@@ -4,21 +4,20 @@ import requests
 import sqlite3
 from datetime import datetime
 
-from entities.sqlserver import HtmlSources as sqlserver_htmlsources
+from bankfund.entities.sqlserver import HtmlSources as sqlserver_htmlsources
+from bankfund.entities.sqlserver import HtmlSource as sqlserver_htmlsource
+from bankfund.entities.sqlserver import FundValue as sqlserver_fundvalue
 
-from entities.sqlserver import HtmlSource as sqlserver_htmlsource
-from entities.sqlserver import FundValue as sqlserver_fundvalue
+from bankfund.entities.sqlite import HtmlSource as sqlite_htmlsource
 
-from entities.sqlite import HtmlSource as sqlite_htmlsource
+from bankfund.entities.textserver import TextSource as text_source
 
-from entities.textserver import TextSource as text_source
+from bankfund.utilities.naming import SQLITE_DB_PATH, URL, DATETIME_NOW_FILE_FORMAT, rename_columns_dict
+from bankfund.utilities.DateTime import to_julian
 
-from globals.globals import SQLITE_DB_PATH, URL, DATETIME_NOW_FILE_FORMAT, rename_columns_dict
-from globals.DateTime import to_julian
+from bankfund.FrameHelper import get_empty_row_indexes, realign_frame, split_Code_Dt_Title_column
 
-from FrameHelper import get_empty_row_indexes, realign_frame, split_Code_Dt_Title_column
-
-import HtmlParser
+import bankfund.HtmlParser
 
 def get_response(url) -> requests.Response:
     

@@ -3,28 +3,28 @@ from datetime import datetime, date, timedelta
 from io import StringIO 
 import pandas as pd
 
-import HtmlParser
+from bankfund import HtmlParser
 
-from FrameHelper import get_empty_row_indexes, split_Code_Dt_Title_column, realign_frame
+from bankfund.FrameHelper import get_empty_row_indexes, split_Code_Dt_Title_column, realign_frame
 
-from globals import DateTime
-from globals.globals import rename_columns_dict, DATETIME_NOW_FILE_FORMAT
+from bankfund.utilities import DateTime
+from bankfund.utilities.naming import rename_columns_dict, DATETIME_NOW_FILE_FORMAT
 
-from entities.sqlite import HtmlSources as sqlite_htmlsources
-from entities.sqlite import HtmlSources as sqlite_htmlsource
-from entities.sqlite import Bank as sqlite_bank
-from entities.sqlite import Fund as sqlite_fund
-from entities.sqlite import FundType as sqlite_fundtype
-from entities.sqlite import FundValue as sqlite_fundvalue
+from bankfund.entities.sqlite import HtmlSources as sqlite_htmlsources
+from bankfund.entities.sqlite import HtmlSources as sqlite_htmlsource
+from bankfund.entities.sqlite import Bank as sqlite_bank
+from bankfund.entities.sqlite import Fund as sqlite_fund
+from bankfund.entities.sqlite import FundType as sqlite_fundtype
+from bankfund.entities.sqlite import FundValue as sqlite_fundvalue
 
-from entities.sqlserver import HtmlSources as sqlserver_htmlsources
-from entities.sqlserver import HtmlSources as sqlserver_htmlsource
-from entities.sqlserver import FundValue as sqlserver_fundvalue
+from bankfund.entities.sqlserver import HtmlSources as sqlserver_htmlsources
+from bankfund.entities.sqlserver import HtmlSources as sqlserver_htmlsource
+from bankfund.entities.sqlserver import FundValue as sqlserver_fundvalue
 
-from entities.textserver import TextSource as text_source
-from entities.textserver import TextSources as text_sources
+from bankfund.entities.textserver import TextSource as text_source
+from bankfund.entities.textserver import TextSources as text_sources
 
-from plots import ScatterPlots
+from bankfund.plots import ScatterPlots
 
 def insert_html_sources(begin_date : date = date.min, end_date : date = date.today()):
     

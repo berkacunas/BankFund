@@ -1,10 +1,10 @@
 from datetime import datetime, date
 import pymssql
 
-from entities.Interfaces import HtmlSource
+from bankfund.entities.Interfaces import HtmlSource
 
-import globals.DataFormat as DataFormat
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+import bankfund.utilities.DataFormat as DataFormat
+from bankfund.utilities.naming import SQLSERVER_NAME, SQLSERVER_DB
 
 
 def select(dt : date) -> list:

@@ -1,12 +1,12 @@
 from datetime import datetime, date
 import sqlite3
 
-from entities.Interfaces import Fund
+from bankfund.entities.Interfaces import Fund
 
-from entities.sqlite import FundType
-from entities.sqlite import Bank
+from bankfund.entities.sqlite import FundType
+from bankfund.entities.sqlite import Bank
 
-from globals.globals import SQLITE_DB_PATH
+from bankfund.utilities.naming import SQLITE_DB_PATH
 
 
 def select_id(fund_title: str) -> int:

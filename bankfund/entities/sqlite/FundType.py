@@ -3,7 +3,7 @@ import sqlite3
 import pandas as pd
 from sqlalchemy import create_engine
 
-from globals.globals import SQLITE_DB_PATH, DATA_DIR
+from bankfund.utilities.naming import SQLITE_DB_PATH, DATA_DIR
 
 def select_id(fundtype_title: str) -> int:
     

@@ -9,9 +9,9 @@ from entities.Interfaces import FundValue, FundValueDuplicate
 from entities.sqlserver import Fund as fund
 from entities.sqlserver import FundType as fund_type
 
-from globals.DateTime import is_weekend
-import globals.DataFormat as DataFormat
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from utilities.DateTime import is_weekend
+import utilities.DataFormat as DataFormat
+from bankfund.utilities.naming import SQLSERVER_NAME, SQLSERVER_DB
 
 
 def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list:

@@ -1,8 +1,8 @@
 from datetime import datetime, date, timedelta
 
-from globals import DateTime
+from bankfund.utilities import DateTime
 
-from FrameHelper import FrameHelper
+from bankfund.FrameHelper import FrameHelper
 
 frame_helper = FrameHelper()
 

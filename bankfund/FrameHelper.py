@@ -4,8 +4,8 @@ import numpy as np
 import pandas as pd
 from io import StringIO
 
-import HtmlParser as html_parser
-from globals.globals import rename_columns_dict
+import bankfund.HtmlParser as html_parser
+from bankfund.utilities.naming import rename_columns_dict
 
 def split_Code_Dt_Title_column(frame: pd.DataFrame, dt):
     

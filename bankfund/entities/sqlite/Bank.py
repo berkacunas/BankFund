@@ -1,8 +1,7 @@
 import sqlite3
 
-from entities.Interfaces import Bank
-
-from globals.globals import SQLITE_DB_PATH
+from bankfund.entities.Interfaces import Bank
+from bankfund.utilities.naming import SQLITE_DB_PATH
     
 def select_id(bank_name: str) -> int:
     

@@ -1,7 +1,7 @@
 import pymssql
 import pandas as pd
 
-from globals.globals import SQLSERVER_NAME, SQLSERVER_DB
+from bankfund.utilities.naming import SQLSERVER_NAME, SQLSERVER_DB
 
 def select_id(fundtype_title: str) -> int:
     
