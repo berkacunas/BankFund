@@ -11,3 +11,4 @@ xlsxwriter
 html5lib
 matplotlib
 sqlalchemy
+setuptools
