@@ -1,17 +1,13 @@
 import os
-from setuptools import setup
-
-
 from setuptools import setup, find_packages
-import os
 
 PACKAGE = "BankFund"
 NAME = "BankFund"
 DESCRIPTION = "" 
 AUTHOR = "Berk Acunaş"
 AUTHOR_EMAIL = 'berk@deponessoft.com'
-URL = "Git Repository Address"
-DOWNLOAD_URL = "https://git.wur.nl/dobedani/mypkg/-/archive/master/mypkg-master.tar.gz"
+URL = "https://github.com/berkacunas/BankFund"
+DOWNLOAD_URL = "https://github.com/berkacunas/BankFund.git"
 LICENSE="GPL"
 VERSION = "1.0.0"
 
