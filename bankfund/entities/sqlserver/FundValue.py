@@ -424,7 +424,7 @@ def select_last_day_entries() -> list[FundValue]:
                     (
                         SELECT MAX(Dt) as MAXDT FROM FundValue
                     )
-                    SELECT * FROM CTE_LastDay
+                    SELECT id, Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, [Description] FROM CTE_LastDay
                     INNER JOIN FundValue as fv
                     ON fv.Dt = CTE_LastDay.MAXDT
                 '''
