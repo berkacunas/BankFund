@@ -16,7 +16,7 @@ def walk(html_source, callback, begin_date : date = date.min, end_date : date = 
     if end_date == date.max:
         end_date = max(date_values)
         
-    htmlsource_count = html_source.count(begin_date, end_date)
+    htmlsource_count = html_source.count_range(begin_date, end_date)
     
     delta = timedelta(days=1)
     
@@ -28,7 +28,7 @@ def walk(html_source, callback, begin_date : date = date.min, end_date : date = 
         print("*" * 100)
         print(f"Date: {iter_date} processing...")
         print("*" * 100)
-        daily_htmlsource_count = html_source.count(iter_date, iter_date)
+        daily_htmlsource_count = html_source.count(iter_date)
         # if date in dates:
         #     textfile_count -= daily_textfile_count
         #    

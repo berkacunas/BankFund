@@ -13,9 +13,11 @@ from bankfund.entities.sqlserver import FundType as fund_type
 from bankfund.utilities.DateTime import is_weekend
 import bankfund.utilities.DataFormat as DataFormat
 
-def get(id, fund_id, code, dt, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description) -> FundValue:
+from bankfund.Exceptions import FundTypeNotFoundError
+
+def get(id, code, dt, fund_id, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description) -> FundValue:
     
-    return FundValue(id, fund_id, code, dt, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description)
+    return FundValue(id, code, dt, fund_id, currency, unit_share_price, risk_level, daily_return, monthly_return, three_month_return, from_new_year, description)
 
 def get_from_row(row, fund_id = None) -> FundValue:
     
@@ -25,7 +27,7 @@ def get_from_row(row, fund_id = None) -> FundValue:
     three_month_return = DataFormat.clear_text(row.ThreeMonthReturn)
     from_new_year = DataFormat.clear_text(row.FromNewYear)
                     
-    return get(None, fund_id, row.Code, row.Dt, 'TL', unit_share_price, row.RiskLevel, daily_return, monthly_return, three_month_return, from_new_year, row.Title)
+    return get(None, row.Code, row.Dt, fund_id, 'TL', unit_share_price, row.RiskLevel, daily_return, monthly_return, three_month_return, from_new_year, row.Title)
 
 def select_by_code(code: str, begin_date : date = date.min, end_date : date = date.today()) -> list[FundValue]:
     
@@ -145,6 +147,25 @@ def is_exists(fund_id: int, dt: date) -> bool:
     except Exception as error:
         raise Exception(f"{type(error)}: {error}")
     
+def insert(fundvalue: FundValue):
+    
+    try:    
+        with sqlserver_context.create_connection() as conn:
+            sql = "INSERT INTO FundValue(Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description) " \
+                                    "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
+            curr = conn.cursor()
+            
+            print(f"FundValue => Code: {fundvalue.Code} | UnitSharePrice: {fundvalue.UnitSharePrice} | DailyReturn: {fundvalue.DailyReturn} | MonthlyReturn: {fundvalue.MonthlyReturn} | ThreeMonthReturn: {fundvalue.ThreeMonthReturn} | FromNewYear: {fundvalue.FromNewYear} | Dt: {fundvalue.Dt} added.")
+              
+            curr.execute(sql, (fundvalue.Code, fundvalue.Dt, fundvalue.FundId, fundvalue.Currency, fundvalue.UnitSharePrice, fundvalue.RiskLevel, 
+                         fundvalue.DailyReturn, fundvalue.MonthlyReturn, fundvalue.ThreeMonthReturn, fundvalue.FromNewYear, fundvalue.Description, ))
+            
+            curr.close()
+            conn.commit()
+            
+    except Exception as error:
+        raise Exception(f"{type(error)}: {error}")
+        
 def insert_frame(frame_dict: dict) -> list[pd.DataFrame]:
     
     new_funds = []
@@ -152,9 +173,6 @@ def insert_frame(frame_dict: dict) -> list[pd.DataFrame]:
     
     try:    
         with sqlserver_context.create_connection() as conn:
-            sql = "INSERT INTO FundValue(Code, Dt, FundId, Currency, UnitSharePrice, RiskLevel, DailyReturn, MonthlyReturn, ThreeMonthReturn, FromNewYear, Description) " \
-                                    "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)"
-            curr = conn.cursor()
             
             for key, value in frame_dict.items():
                 fundtype_id = fund_type.select_id(key)
@@ -164,26 +182,12 @@ def insert_frame(frame_dict: dict) -> list[pd.DataFrame]:
                         print(f"{key} => {row.Title}")
 
                         fund_id = fund.select_id(row.Title)
-                        if is_exists(fund_id, row.Dt.date()):
-                            continue
-                        
-                        
-                        fundvalue = get_from_row(row, fund_id)
-                    
-                        # print(f"1 - UnitSharePrice: {row.UnitSharePrice} | DailyReturn: {row.DailyReturn} | MonthlyReturn: {row.MonthlyReturn} | ThreeMonthReturn: {row.ThreeMonthReturn} | FromNewYear: {row.FromNewYear} | Dt: {row.Dt}")
-                        unit_share_price = DataFormat.clear_text(row.UnitSharePrice)
-                        daily_return = DataFormat.clear_text(row.DailyReturn)
-                        monthly_return = DataFormat.clear_text(row.MonthlyReturn)
-                        three_month_return = DataFormat.clear_text(row.ThreeMonthReturn)
-                        from_new_year = DataFormat.clear_text(row.FromNewYear)
-                        # print(f"2 - UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt}")
-                        
+                        # if is_exists(fund_id, row.Dt.date()):
+                        #     continue
+                                                
                         if fund_id > 0:
-                            curr.execute(sql, (row.Code, row.Dt, fund_id, row.Currency, unit_share_price, row.RiskLevel, 
-                                            daily_return, monthly_return, three_month_return, from_new_year, row.Title, ))
-                            conn.commit()
-                            print(f"FundValue => Code: {row.Code} | Title: {row.Title} | UnitSharePrice: {unit_share_price} | DailyReturn: {daily_return} | MonthlyReturn: {monthly_return} | ThreeMonthReturn: {three_month_return} | FromNewYear: {from_new_year} | Dt: {row.Dt} added.")
-                            
+                            fundvalue = get_from_row(row, fund_id)
+                            insert(fundvalue)
                         else:
                             # build fund object and insert
                             print(f"Cannot find fund: {row.Title}")
@@ -192,15 +196,13 @@ def insert_frame(frame_dict: dict) -> list[pd.DataFrame]:
                             print(f"Fund created: {row.Title}")
                             new_funds.append(row)
                 else:
-                    print(f"Cannot find fund type: {key}")
+                    raise FundTypeNotFoundError(f"Cannot find fund type: {key}")
                     
                 if len(new_funds) >0:
                     # Whenever a new fund is defined by the bank, the program simply adds the new fund 
                     # to the database in the first iteration. The same dataframe must be iterated over 
                     # a second iteration to read the fund's daily data.
                     new_fund_dfs.append(pd.DataFrame(new_funds, columns=frame_dict[key].columns))
-                
-            curr.close()
             
         return new_fund_dfs
                     

@@ -12,3 +12,4 @@ html5lib
 matplotlib
 sqlalchemy
 setuptools
+selenium

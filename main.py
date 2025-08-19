@@ -24,6 +24,8 @@ from bankfund.entities.sqlserver import FundValue as sqlserver_fundvalue
 from bankfund.entities.textserver import TextSource as text_source
 from bankfund.entities.textserver import TextSources as text_sources
 
+from bankfund.Exceptions import FundTypeNotFoundError
+
 from bankfund.plots import ScatterPlots
 
 def insert_html_sources(begin_date : date = date.min, end_date : date = date.today()):
@@ -134,9 +136,7 @@ def main():
         # if sqlserver_duplicates:
         #     pprint.pp(sqlserver_duplicates, depth=1)
         #     sqlserver_deleted_duplicate_count = sqlserver_fundvalue.delete_duplicate_entries(sqlserver_duplicates)
-        
-        
-        # sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
+        sqlserver_deleted_weekend_count = sqlserver_fundvalue.delete_weekend_entries()
         
         # sqlserver_fundvalue.to_csv(f"./csv/FundValue_{datetime.strftime(datetime.now(), DATETIME_NOW_FILE_FORMAT)}.csv")
         # filename = "./csv/FundValue_2025-07-04_21-37-25.csv"
@@ -146,15 +146,18 @@ def main():
         # ScatterPlots.plot(frame, date(2025, 6, 10), date(2025, 7, 8))
         # ScatterPlots.scatter(frame)
         
-        # html_file_sources = text_source.read(datetime.date.today())
+        # html_file_sources = text_source.select(datetime.now().date())
         # text_sources.insert_new_funds()
-        # text_sources.insert_fundvalues()
+        # text_sources.insert_fundvalues(datetime.now().date())
         
-        fundvalues = sqlserver_fundvalue.select_last_day_entries()
-        print(fundvalues)
+        # fundvalues = sqlserver_fundvalue.select_last_day_entries()
+        # print(fundvalues)
+        print()
         
     except ValueError as verror:
         print(f"Value error occured in main()::text_source.read()\n{verror}")
+    except FundTypeNotFoundError as ft_error:
+        print(f"{type(ft_error)}: {ft_error}")
     except Exception as error:
         print(f"Exception occured: {error}")
     

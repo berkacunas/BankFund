@@ -20,7 +20,7 @@ class Destination(Enum):
 frame_helper = FrameHelper()
 destination = Destination.SQLSERVER     # SQL Server is default value.
 
-# def insert_fundvalues(begin_date : date = date.min, end_date : date = date.today()):
+# def insert_fundvalues(begin_date : date = date.min, end_date : date = date.max):
     
 #     dates = text_source.list_dates()
 #     date_values = [x[0] for x in dates.values()]
@@ -69,7 +69,7 @@ destination = Destination.SQLSERVER     # SQL Server is default value.
 #             print(error)
 #             raise error
 
-# def insert_new_funds(begin_date: date = date.min, end_date: date = date.today()):
+# def insert_new_funds(begin_date: date = date.min, end_date: date = date.max):
     
 #     dates = text_source.list_dates()
 #     date_values = [x[0] for x in dates.values()]
@@ -117,20 +117,20 @@ destination = Destination.SQLSERVER     # SQL Server is default value.
 #         except Exception as error:
 #             print(error)
  
-def insert_fundvalues(begin_date : date = date.min, end_date : date = date.today()):
+def insert_fundvalues(begin_date : date = date.min, end_date : date = date.max):
     
     htmlsource_walker.walk(text_source, insert_fundvalue_handler, begin_date, end_date)
     
-def insert_new_funds(begin_date: date = date.min, end_date: date = date.today()):
+def insert_new_funds(begin_date: date = date.min, end_date: date = date.max):
     
     htmlsource_walker.walk(text_source, insert_fund_handler, begin_date, end_date)
         
 def insert_fundvalue_handler(frame_dict: dict):
     
     if destination == Destination.SQLSERVER:
-        sqlserver_fundvalue.insert(frame_dict)
+        sqlserver_fundvalue.insert_frame(frame_dict)
     elif destination == Destination.SQLITE:
-        sqlite_fundvalue.insert(frame_dict)
+        sqlite_fundvalue.insert_frame(frame_dict)
 
 def insert_fund_handler(frame_dict):
     
