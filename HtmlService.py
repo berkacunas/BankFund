@@ -17,7 +17,7 @@ def main():
 
     html = None
     try:
-        browser = get_browser(WebBrowsers.FIREFOX)
+        browser = get_browser(WebBrowsers.CHROME)
         html = get_page_source(URL, browser)
     except Exception as error:
         print(error)
